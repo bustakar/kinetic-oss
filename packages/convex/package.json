@@ -1,0 +1,15 @@
+{
+  "name": "@kinetic/convex",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --project convex/tsconfig.json --noEmit",
+    "dev": "convex dev"
+  },
+  "dependencies": {
+    "convex": "^1.44.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
+}
