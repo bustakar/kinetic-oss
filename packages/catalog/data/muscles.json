@@ -22,7 +22,7 @@
 {"slug":"semitendinosus-semimembranosus","name":"Semitendinosus & Semimembranosus","groupSlug":"hamstrings"},
 {"slug":"gluteus-maximus","name":"Gluteus Maximus","groupSlug":"glutes"},
 {"slug":"gluteus-medius","name":"Gluteus Medius","groupSlug":"glutes"},
-{"slug":"hip-adductors","name":"Hip Adductors","groupSlug":"glutes"},
+{"slug":"hip-adductors","name":"Hip Adductors","groupSlug":"adductors"},
 {"slug":"gastrocnemius","name":"Gastrocnemius","groupSlug":"calves"},
 {"slug":"soleus","name":"Soleus","groupSlug":"calves"},
 {"slug":"rectus-abdominis","name":"Rectus Abdominis","groupSlug":"core"},

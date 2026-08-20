@@ -8,7 +8,7 @@ const muscles = read('muscles.json')
 const exercises = read('exercises.json')
 
 exactKeys(manifest, ['revision', 'schemaVersion'], 'Manifest')
-positiveInteger(manifest.schemaVersion, 'Manifest schemaVersion')
+assert.equal(manifest.schemaVersion, 1, 'Unsupported catalog schemaVersion')
 positiveInteger(manifest.revision, 'Manifest revision')
 
 const groupSlugs = uniqueRecords(muscleGroups, 'Muscle Group', (item) => {
@@ -35,6 +35,13 @@ uniqueRecords(exercises, 'Exercise', (item) => {
   for (const column of item.defaultColumns) {
     assert(['reps', 'time', 'weight'].includes(column), `Exercise ${item.slug} has an invalid column`)
   }
+  const columns = new Set(item.defaultColumns)
+  assert.equal(columns.size, item.defaultColumns.length, `Exercise ${item.slug} repeats a column`)
+  assert.equal(
+    Number(columns.has('reps')) + Number(columns.has('time')),
+    1,
+    `Exercise ${item.slug} requires exactly one reps or time column`,
+  )
   assert(Array.isArray(item.muscles) && item.muscles.length > 0)
   const references = new Set()
   let hasPrimary = false
