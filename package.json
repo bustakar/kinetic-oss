@@ -1,0 +1,8 @@
+{
+  "name": "kinetic-oss",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "check": "pnpm --recursive --if-present check"
+  }
+}
