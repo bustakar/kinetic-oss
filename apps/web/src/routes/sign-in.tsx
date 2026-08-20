@@ -2,11 +2,7 @@ import { Button } from '@kinetic/ui/components/button'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { getAuth } from '@workos/authkit-tanstack-react-start'
 
-import {
-  safeReturnPath,
-  signInEndpoint,
-  validateAuthEnvironment,
-} from '@/lib/auth'
+import { safeReturnPath, signInEndpoint } from '@/lib/auth'
 
 type SignInSearch = {
   error?: string
@@ -23,7 +19,6 @@ export const Route = createFileRoute('/sign-in')({
   }),
   loaderDeps: ({ search }) => search,
   loader: async ({ deps }) => {
-    validateAuthEnvironment(process.env)
     const { user } = await getAuth()
     if (user) throw redirect({ href: safeReturnPath(deps.returnPathname) })
     if (!deps.error) throw redirect({ href: signInEndpoint(deps.returnPathname) })

@@ -9,6 +9,7 @@ import {
 } from '@kinetic/ui/components/sidebar'
 import { Button } from '@kinetic/ui/components/button'
 import { Link } from '@tanstack/react-router'
+import { useAuth } from '@workos/authkit-tanstack-react-start/client'
 import { userDisplayName } from '@/lib/auth'
 
 type SidebarUser = {
@@ -19,6 +20,7 @@ type SidebarUser = {
 }
 
 export function AppSidebar({ user }: { user: SidebarUser }) {
+  const { signOut } = useAuth()
   const name = userDisplayName(user)
   const initials = name
     .split(/\s+/)
@@ -64,8 +66,14 @@ export function AppSidebar({ user }: { user: SidebarUser }) {
             <p className="truncate text-xs text-muted-foreground">{user.email}</p>
           </div>
         </div>
-        <Button asChild variant="ghost" size="sm" className="justify-start">
-          <a href="/sign-out">Sign out</a>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="justify-start"
+          onClick={() => void signOut()}
+        >
+          Sign out
         </Button>
       </SidebarFooter>
     </Sidebar>
