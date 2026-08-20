@@ -1,6 +1,0 @@
-pnpm-lock.yaml
-.vercel
-.output
-convex/_generated
-src/routeTree.gen.ts
-data/*.json
