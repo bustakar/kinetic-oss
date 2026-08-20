@@ -14,6 +14,12 @@ pnpm install
 pnpm check
 ```
 
+Run the Web app with:
+
+```sh
+pnpm dev
+```
+
 ## Catalog
 
 The versioned source catalog lives in `data/`. Change it together, increment
