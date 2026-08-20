@@ -1,0 +1,14 @@
+[
+{"slug":"chest","name":"Chest"},
+{"slug":"back","name":"Back"},
+{"slug":"shoulders","name":"Shoulders"},
+{"slug":"biceps","name":"Biceps"},
+{"slug":"triceps","name":"Triceps"},
+{"slug":"forearms","name":"Forearms"},
+{"slug":"quads","name":"Quadriceps"},
+{"slug":"hamstrings","name":"Hamstrings"},
+{"slug":"glutes","name":"Glutes"},
+{"slug":"calves","name":"Calves"},
+{"slug":"core","name":"Core"},
+{"slug":"hip-flexors","name":"Hip Flexors"}
+]

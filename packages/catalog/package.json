@@ -1,0 +1,14 @@
+{
+  "name": "@kinetic/catalog",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./manifest": "./data/manifest.json",
+    "./muscle-groups": "./data/muscle-groups.json",
+    "./muscles": "./data/muscles.json",
+    "./exercises": "./data/exercises.json"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs"
+  }
+}
