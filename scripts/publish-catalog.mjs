@@ -3,8 +3,9 @@ import { spawnSync } from 'node:child_process'
 const root = new URL('../', import.meta.url)
 if (process.argv.length > 2) throw new Error('Usage: pnpm catalog:publish')
 
-runGit(['diff', '--quiet', '--', 'data'])
-runGit(['diff', '--cached', '--quiet', '--', 'data'])
+if (runGit(['status', '--porcelain'], true) !== '') {
+  throw new Error('Commit all changes before publishing')
+}
 
 const commit = runGit(['rev-parse', 'HEAD'], true)
 const convexArgs = [
@@ -15,6 +16,7 @@ const convexArgs = [
   'run',
   'catalog:publish',
   JSON.stringify({ commit }),
+  '--push',
 ]
 
 const result = spawnSync('pnpm', convexArgs, {
@@ -32,9 +34,6 @@ function runGit(args, capture = false) {
   })
   if (result.error !== undefined) throw result.error
   if (result.status !== 0) {
-    if (args[0] === 'diff') {
-      throw new Error('Commit catalog changes before publishing')
-    }
     throw new Error(`git ${args.join(' ')} failed`)
   }
   return capture ? result.stdout.trim() : undefined
