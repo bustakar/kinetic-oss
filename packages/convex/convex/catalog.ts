@@ -6,7 +6,8 @@ import {
   catalogPublicationResult,
   catalogSnapshot,
 } from './catalogValidators'
-import { parseCatalogFiles, validateCatalogSnapshot } from './catalogModel'
+import type { CatalogSnapshot } from './catalogModel'
+import { validateCatalogSnapshot } from './catalogModel'
 
 const catalogBaseUrl = 'https://raw.githubusercontent.com/bustakar/kinetic-oss'
 
@@ -27,12 +28,15 @@ export const publish = internalAction({
       fetchCatalogFile(commit, 'muscles.json'),
       fetchCatalogFile(commit, 'exercises.json'),
     ])
-    const snapshot = parseCatalogFiles({
-      manifest,
+    if (!isRecord(manifest)) throw new Error('Catalog manifest must be an object')
+
+    // applySnapshot's argument validator is the runtime parser for remote JSON.
+    const snapshot = {
+      ...manifest,
       muscleGroups,
       muscles,
       exercises,
-    })
+    } as CatalogSnapshot
     const contentHash = await sha256(JSON.stringify(snapshot))
 
     return await ctx.runMutation(internal.catalog.applySnapshot, {
@@ -202,6 +206,10 @@ async function fetchCatalogFile(commit: string, name: string): Promise<unknown> 
     throw new Error(`Could not fetch ${name} at ${commit}: HTTP ${response.status}`)
   }
   return await response.json()
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 async function sha256(value: string): Promise<string> {
