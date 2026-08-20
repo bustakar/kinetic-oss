@@ -12,15 +12,19 @@ assert.equal(manifest.schemaVersion, 1, 'Unsupported catalog schemaVersion')
 positiveInteger(manifest.revision, 'Manifest revision')
 
 const groupSlugs = uniqueRecords(muscleGroups, 'Muscle Group', (item) => {
-  exactKeys(item, ['name', 'slug'], `Muscle Group ${item.slug}`)
+  exactKeys(item, ['deprecated', 'name', 'slug'], `Muscle Group ${item.slug}`, ['deprecated'])
   identity(item, 'Muscle Group')
+  optionalBoolean(item.deprecated, `Muscle Group ${item.slug} deprecated`)
 })
 
 const muscleSlugs = uniqueRecords(muscles, 'Muscle', (item) => {
-  exactKeys(item, ['groupSlug', 'name', 'slug'], `Muscle ${item.slug}`)
+  exactKeys(item, ['deprecated', 'groupSlug', 'name', 'slug'], `Muscle ${item.slug}`, [
+    'deprecated',
+  ])
   identity(item, 'Muscle')
   slug(item.groupSlug, `Muscle ${item.slug} groupSlug`)
   assert(groupSlugs.has(item.groupSlug), `Muscle ${item.slug} references an unknown group`)
+  optionalBoolean(item.deprecated, `Muscle ${item.slug} deprecated`)
 })
 
 uniqueRecords(exercises, 'Exercise', (item) => {
@@ -56,7 +60,7 @@ uniqueRecords(exercises, 'Exercise', (item) => {
   }
   assert(hasPrimary, `Exercise ${item.slug} requires a primary Muscle`)
   if (item.family !== undefined) slug(item.family, `Exercise ${item.slug} family`)
-  if (item.deprecated !== undefined) assert.equal(typeof item.deprecated, 'boolean')
+  optionalBoolean(item.deprecated, `Exercise ${item.slug} deprecated`)
 })
 
 console.log(
@@ -92,6 +96,10 @@ function slug(value, label) {
 
 function positiveInteger(value, label) {
   assert(Number.isInteger(value) && value > 0, `${label} must be a positive integer`)
+}
+
+function optionalBoolean(value, label) {
+  if (value !== undefined) assert.equal(typeof value, 'boolean', `${label} must be a boolean`)
 }
 
 function exactKeys(value, allowed, label, optional = []) {

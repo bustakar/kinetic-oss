@@ -2,5 +2,8 @@ packages:
   - apps/*
   - packages/*
 
+minimumReleaseAgeExclude:
+  - convex-test@0.0.56
+
 allowBuilds:
   esbuild: true

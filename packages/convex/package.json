@@ -3,13 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "tsc --project convex/tsconfig.json --noEmit",
+    "check": "tsc --project convex/tsconfig.json --noEmit && vitest run",
     "dev": "convex dev"
   },
   "dependencies": {
     "convex": "^1.44.0"
   },
   "devDependencies": {
+    "convex-test": "^0.0.56",
+    "vitest": "^4.1.11",
     "typescript": "^6.0.2"
   }
 }
