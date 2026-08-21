@@ -18,6 +18,7 @@
     "@workos/authkit-tanstack-react-start": "^0.11.0",
     "convex": "^1.44.0",
     "lucide-react": "^1.33.0",
+    "posthog-js": "^1.418.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

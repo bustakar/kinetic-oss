@@ -20,6 +20,8 @@ import {
 import { ChevronsUpDown, LogOut } from 'lucide-react'
 import { useAuth } from '@workos/authkit-tanstack-react-start/client'
 
+import { useWebAnalytics } from '@/components/web-analytics-provider'
+
 export function NavUser({
   user,
 }: {
@@ -27,12 +29,18 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const { signOut } = useAuth()
+  const analytics = useWebAnalytics()
   const initials = user.name
     .split(/\s+/)
     .map((part) => part[0])
     .join('')
     .slice(0, 2)
     .toUpperCase()
+
+  function handleSignOut() {
+    analytics.reset()
+    return signOut({ returnTo: window.location.origin })
+  }
 
   return (
     <SidebarMenu>
@@ -78,7 +86,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={() => void signOut({ returnTo: window.location.origin })}
+              onSelect={() => void handleSignOut()}
             >
               <LogOut />
               Log out

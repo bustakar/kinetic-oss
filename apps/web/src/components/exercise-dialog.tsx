@@ -27,6 +27,8 @@ import { PlusIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 
+import { useWebAnalytics } from '@/components/web-analytics-provider'
+
 type ExerciseColumn = 'reps' | 'time' | 'weight'
 type ExerciseListItem = FunctionReturnType<typeof api.exercises.list>[number]
 export type CustomExercise = Extract<
@@ -86,6 +88,7 @@ export function ExerciseEditDialog({
 function ExerciseDialog(props: ExerciseDialogProps) {
   const createExercise = useMutation(api.exercises.create)
   const updateExercise = useMutation(api.exercises.update)
+  const analytics = useWebAnalytics()
   const pending = useRef(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [draft, setDraft] = useState(() => draftFor(props))
@@ -139,6 +142,7 @@ function ExerciseDialog(props: ExerciseDialogProps) {
           defaultColumns,
           muscles: [],
         })
+        analytics.captureExerciseEvent('exercise_created')
       } else {
         await updateExercise({
           exerciseId: props.exercise.source.exerciseId,
@@ -147,6 +151,7 @@ function ExerciseDialog(props: ExerciseDialogProps) {
           defaultColumns,
           muscles: props.exercise.muscles,
         })
+        analytics.captureExerciseEvent('exercise_updated')
       }
       close()
     } catch {
