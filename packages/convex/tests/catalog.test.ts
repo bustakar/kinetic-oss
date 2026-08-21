@@ -43,14 +43,14 @@ describe('catalog publication', () => {
     })
   })
 
-  test('rejects an exercise that mixes reps and time', async () => {
+  test('rejects an exercise without set columns', async () => {
     const t = convexTest(schema, modules)
     const invalidSnapshot = {
       ...snapshot,
       exercises: [
         {
           ...snapshot.exercises[0],
-          defaultColumns: ['reps', 'time'] as const,
+          defaultColumns: [] as const,
         },
       ],
     }
@@ -60,7 +60,7 @@ describe('catalog publication', () => {
         snapshot: invalidSnapshot,
         contentHash: firstHash,
       }),
-    ).rejects.toThrow('must use exactly one of reps or time')
+    ).rejects.toThrow('must define a set column')
     await expect(t.query(api.catalog.current, {})).resolves.toBeNull()
   })
 

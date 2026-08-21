@@ -41,11 +41,6 @@ uniqueRecords(exercises, 'Exercise', (item) => {
   }
   const columns = new Set(item.defaultColumns)
   assert.equal(columns.size, item.defaultColumns.length, `Exercise ${item.slug} repeats a column`)
-  assert.equal(
-    Number(columns.has('reps')) + Number(columns.has('time')),
-    1,
-    `Exercise ${item.slug} requires exactly one reps or time column`,
-  )
   assert(Array.isArray(item.muscles) && item.muscles.length > 0)
   const references = new Set()
   let hasPrimary = false

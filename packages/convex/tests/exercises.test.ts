@@ -162,9 +162,15 @@ describe('exercises', () => {
     await expect(
       alex.mutation(api.exercises.create, {
         ...definition,
+        defaultColumns: [],
+      }),
+    ).rejects.toThrow('at least one set column')
+    await expect(
+      alex.mutation(api.exercises.create, {
+        ...definition,
         defaultColumns: ['reps', 'time'],
       }),
-    ).rejects.toThrow('exactly one of reps or time')
+    ).resolves.toMatchObject({ defaultColumns: ['reps', 'time'] })
     await expect(
       alex.mutation(api.exercises.create, {
         ...definition,

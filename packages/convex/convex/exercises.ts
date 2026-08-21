@@ -166,11 +166,8 @@ function normalizeDefinition(input: ExerciseDefinition): ExerciseDefinition {
   if (new Set(input.defaultColumns).size !== input.defaultColumns.length) {
     invalidInput('Exercise default columns must be unique.')
   }
-  const repetitionColumns =
-    Number(input.defaultColumns.includes('reps')) +
-    Number(input.defaultColumns.includes('time'))
-  if (repetitionColumns !== 1) {
-    invalidInput('Exercise must use exactly one of reps or time.')
+  if (input.defaultColumns.length === 0) {
+    invalidInput('Exercise must define at least one set column.')
   }
 
   const muscleSlugs = input.muscles.map((muscle) => muscle.slug)
