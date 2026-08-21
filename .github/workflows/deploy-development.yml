@@ -13,7 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NITRO_PRESET: vercel
   VERCEL_CLI_VERSION: 58.7.1
   VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
@@ -41,6 +40,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - name: Deploy dev
+        env:
+          NITRO_PRESET: vercel
         run: |
           pnpm dlx "vercel@${VERCEL_CLI_VERSION}" pull --yes --environment=dev --token="$VERCEL_TOKEN"
           pnpm dlx "vercel@${VERCEL_CLI_VERSION}" build --target=dev --token="$VERCEL_TOKEN"
