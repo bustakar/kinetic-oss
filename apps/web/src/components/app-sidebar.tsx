@@ -1,6 +1,7 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -8,7 +9,19 @@ import {
 } from '@kinetic/ui/components/sidebar'
 import { Link } from '@tanstack/react-router'
 
-export function AppSidebar() {
+import { NavUser } from '@/components/nav-user'
+import { userDisplayName } from '@/lib/auth'
+
+type SidebarUser = {
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  profilePictureUrl?: string | null
+}
+
+export function AppSidebar({ user }: { user: SidebarUser }) {
+  const name = userDisplayName(user)
+
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -28,6 +41,15 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent />
+      <SidebarFooter>
+        <NavUser
+          user={{
+            name,
+            email: user.email,
+            avatar: user.profilePictureUrl ?? '',
+          }}
+        />
+      </SidebarFooter>
     </Sidebar>
   )
 }
