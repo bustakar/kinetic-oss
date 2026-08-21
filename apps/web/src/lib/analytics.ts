@@ -34,7 +34,7 @@ export function postHogOptions(config: AnalyticsConfig) {
     advanced_disable_feature_flags: true,
     person_profiles: 'identified_only' as const,
     save_referrer: false,
-    save_campaign_params: false,
+    save_campaign_params: true,
     property_denylist: ['$referrer', '$initial_referrer'],
     before_send: sanitizePostHogEvent,
   }
