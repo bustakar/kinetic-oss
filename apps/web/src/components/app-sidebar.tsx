@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@kinetic/ui/components/sidebar'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { Dumbbell } from 'lucide-react'
@@ -24,6 +25,7 @@ type SidebarUser = {
 
 export function AppSidebar({ user }: { user: SidebarUser }) {
   const name = userDisplayName(user)
+  const { setOpenMobile } = useSidebar()
   const exercisesActive = useRouterState({
     select: (state) => state.location.pathname.startsWith('/exercises'),
   })
@@ -34,7 +36,7 @@ export function AppSidebar({ user }: { user: SidebarUser }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
+              <Link to="/" onClick={() => setOpenMobile(false)}>
                 <img
                   src="/kinetic-icon.svg"
                   alt=""
@@ -56,7 +58,7 @@ export function AppSidebar({ user }: { user: SidebarUser }) {
                   isActive={exercisesActive}
                   tooltip="Exercises"
                 >
-                  <Link to="/exercises">
+                  <Link to="/exercises" onClick={() => setOpenMobile(false)}>
                     <Dumbbell />
                     <span>Exercises</span>
                   </Link>

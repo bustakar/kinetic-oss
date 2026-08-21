@@ -16,12 +16,18 @@ const columnNames = {
 
 function ExercisesPage() {
   const catalog = useQuery(api.catalog.current)
-  const exercises = catalog?.exercises
-    .filter((exercise) => exercise.deprecated !== true)
-    .sort(
-      (left, right) =>
-        left.name.localeCompare(right.name) || left.slug.localeCompare(right.slug),
-    )
+  const exercises =
+    catalog === undefined
+      ? undefined
+      : catalog === null
+        ? []
+        : catalog.exercises
+            .filter((exercise) => exercise.deprecated !== true)
+            .sort(
+              (left, right) =>
+                left.name.localeCompare(right.name) ||
+                left.slug.localeCompare(right.slug),
+            )
 
   return (
     <main className="min-w-0">
