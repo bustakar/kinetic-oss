@@ -2,8 +2,6 @@ import { type Infer, v } from 'convex/values'
 
 import { query } from './_generated/server'
 import { requireOwnerId } from './auth'
-import { listForOwner } from './customExercises'
-import { visibility } from './domainValidators'
 import { exerciseDefinition } from './exerciseValidators'
 
 const catalogExercise = v.object({
@@ -15,7 +13,6 @@ const customExercise = v.object({
   source: v.object({ kind: v.literal('custom'), exerciseId: v.id('exercises') }),
   ...exerciseDefinition.fields,
   notes: v.optional(v.string()),
-  visibility,
 })
 
 const exercise = v.union(catalogExercise, customExercise)
@@ -31,7 +28,10 @@ export const list = query({
         .query('catalogState')
         .withIndex('by_key', (q) => q.eq('key', 'active'))
         .unique(),
-      listForOwner(ctx, ownerId),
+      ctx.db
+        .query('exercises')
+        .withIndex('by_owner', (q) => q.eq('ownerId', ownerId))
+        .collect(),
     ])
     const catalogExercises =
       state === null
@@ -58,7 +58,6 @@ export const list = query({
         notes: item.notes,
         defaultColumns: item.defaultColumns,
         muscles: item.muscles,
-        visibility: item.visibility,
       })),
     ].sort(byName)
   },

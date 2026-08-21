@@ -57,13 +57,12 @@ export default defineSchema({
     .index('by_revision', ['catalogRevision']),
 
   exercises: defineTable({
-    ...owned,
+    ownerId: v.string(),
+    updatedAt: v.number(),
     ...exerciseDefinition.fields,
     notes: v.optional(v.string()),
   })
-    .index('by_owner', ['ownerId'])
-    .index('by_owner_visibility', ['ownerId', 'visibility'])
-    .index('by_visibility', ['visibility']),
+    .index('by_owner', ['ownerId']),
 
   routines: defineTable({
     ...owned,

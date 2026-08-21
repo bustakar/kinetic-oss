@@ -1,10 +1,9 @@
 import { ConvexError, type Infer, v } from 'convex/values'
 
 import type { Doc, Id } from './_generated/dataModel'
-import type { MutationCtx, QueryCtx } from './_generated/server'
+import type { MutationCtx } from './_generated/server'
 import { mutation, query } from './_generated/server'
 import { requireOwnerId } from './auth'
-import { visibility } from './domainValidators'
 import { exerciseDefinition } from './exerciseValidators'
 
 const customExerciseDefinition = v.object({
@@ -16,35 +15,37 @@ const customExercise = v.object({
   _id: v.id('exercises'),
   _creationTime: v.number(),
   ...customExerciseDefinition.fields,
-  visibility,
   updatedAt: v.number(),
 })
 
 const customExerciseOrNull = v.union(v.null(), customExercise)
 type ExerciseDefinition = Infer<typeof customExerciseDefinition>
-export type CustomExercise = Infer<typeof customExercise>
-type Visibility = Infer<typeof visibility>
-type CreateInput = ExerciseDefinition & { visibility?: Visibility }
-type UpdateInput = ExerciseDefinition & { visibility: Visibility }
 
 export const get = query({
   args: { exerciseId: v.id('exercises') },
   returns: customExerciseOrNull,
   handler: async (ctx, { exerciseId }) => {
-    const identity = await ctx.auth.getUserIdentity()
-    return await getForViewer(ctx, exerciseId, identity?.subject)
+    const ownerId = await requireOwnerId(ctx)
+    const exercise = await ctx.db.get(exerciseId)
+    return exercise?.ownerId === ownerId ? toCustomExercise(exercise) : null
   },
 })
 
 export const create = mutation({
-  args: {
-    ...customExerciseDefinition.fields,
-    visibility: v.optional(visibility),
-  },
+  args: customExerciseDefinition.fields,
   returns: customExercise,
   handler: async (ctx, args) => {
     const ownerId = await requireOwnerId(ctx)
-    return await createForOwner(ctx, ownerId, args)
+    const definition = normalizeDefinition(args)
+    await validateDefinition(ctx, definition)
+    const exerciseId = await ctx.db.insert('exercises', {
+      ownerId,
+      ...definition,
+      updatedAt: Date.now(),
+    })
+    const exercise = await ctx.db.get(exerciseId)
+    if (exercise === null) throw new Error('Created exercise was not found')
+    return toCustomExercise(exercise)
   },
 })
 
@@ -52,12 +53,20 @@ export const update = mutation({
   args: {
     exerciseId: v.id('exercises'),
     ...customExerciseDefinition.fields,
-    visibility,
   },
   returns: customExercise,
   handler: async (ctx, { exerciseId, ...input }) => {
     const ownerId = await requireOwnerId(ctx)
-    return await updateForOwner(ctx, ownerId, exerciseId, input)
+    await requireOwnedExercise(ctx, exerciseId, ownerId)
+    const definition = normalizeDefinition(input)
+    await validateDefinition(ctx, definition)
+    await ctx.db.patch(exerciseId, {
+      ...definition,
+      updatedAt: Date.now(),
+    })
+    const exercise = await ctx.db.get(exerciseId)
+    if (exercise === null) throw new Error('Updated exercise was not found')
+    return toCustomExercise(exercise)
   },
 })
 
@@ -66,82 +75,11 @@ export const remove = mutation({
   returns: v.id('exercises'),
   handler: async (ctx, { exerciseId }) => {
     const ownerId = await requireOwnerId(ctx)
-    return await removeForOwner(ctx, ownerId, exerciseId)
+    await requireOwnedExercise(ctx, exerciseId, ownerId)
+    await ctx.db.delete(exerciseId)
+    return exerciseId
   },
 })
-
-export async function listForOwner(
-  ctx: QueryCtx,
-  ownerId: string,
-): Promise<CustomExercise[]> {
-  const exercises = await ctx.db
-    .query('exercises')
-    .withIndex('by_owner', (q) => q.eq('ownerId', ownerId))
-    .collect()
-  return exercises.map(toCustomExercise).sort(byName)
-}
-
-export async function getForViewer(
-  ctx: QueryCtx,
-  exerciseId: Id<'exercises'>,
-  viewerId?: string,
-): Promise<CustomExercise | null> {
-  const exercise = await ctx.db.get(exerciseId)
-  if (
-    exercise === null ||
-    (exercise.visibility === 'private' && exercise.ownerId !== viewerId)
-  ) {
-    return null
-  }
-  return toCustomExercise(exercise)
-}
-
-export async function createForOwner(
-  ctx: MutationCtx,
-  ownerId: string,
-  input: CreateInput,
-): Promise<CustomExercise> {
-  const definition = normalizeDefinition(input)
-  await validateDefinition(ctx, definition)
-  const exerciseId = await ctx.db.insert('exercises', {
-    ownerId,
-    ...definition,
-    visibility: input.visibility ?? 'private',
-    updatedAt: Date.now(),
-  })
-  const exercise = await ctx.db.get(exerciseId)
-  if (exercise === null) throw new Error('Created exercise was not found')
-  return toCustomExercise(exercise)
-}
-
-export async function updateForOwner(
-  ctx: MutationCtx,
-  ownerId: string,
-  exerciseId: Id<'exercises'>,
-  input: UpdateInput,
-): Promise<CustomExercise> {
-  await requireOwnedExercise(ctx, exerciseId, ownerId)
-  const definition = normalizeDefinition(input)
-  await validateDefinition(ctx, definition)
-  await ctx.db.patch(exerciseId, {
-    ...definition,
-    visibility: input.visibility,
-    updatedAt: Date.now(),
-  })
-  const exercise = await ctx.db.get(exerciseId)
-  if (exercise === null) throw new Error('Updated exercise was not found')
-  return toCustomExercise(exercise)
-}
-
-export async function removeForOwner(
-  ctx: MutationCtx,
-  ownerId: string,
-  exerciseId: Id<'exercises'>,
-): Promise<Id<'exercises'>> {
-  await requireOwnedExercise(ctx, exerciseId, ownerId)
-  await ctx.db.delete(exerciseId)
-  return exerciseId
-}
 
 function normalizeDefinition(input: ExerciseDefinition): ExerciseDefinition {
   const name = input.name.trim()
@@ -229,13 +167,8 @@ function toCustomExercise(exercise: Doc<'exercises'>) {
     notes: exercise.notes,
     defaultColumns: exercise.defaultColumns,
     muscles: exercise.muscles,
-    visibility: exercise.visibility,
     updatedAt: exercise.updatedAt,
   }
-}
-
-function byName(left: CustomExercise, right: CustomExercise): number {
-  return left.name.localeCompare(right.name) || left._id.localeCompare(right._id)
 }
 
 function invalidInput(message: string): never {

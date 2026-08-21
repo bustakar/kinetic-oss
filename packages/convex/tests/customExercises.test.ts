@@ -23,13 +23,15 @@ describe('custom exercises', () => {
       data: { code: 'UNAUTHENTICATED' },
     })
     await expect(
+      t.query(api.customExercises.get, { exerciseId: exercise._id }),
+    ).rejects.toMatchObject({ data: { code: 'UNAUTHENTICATED' } })
+    await expect(
       t.mutation(api.customExercises.create, definition),
     ).rejects.toMatchObject({ data: { code: 'UNAUTHENTICATED' } })
     await expect(
       t.mutation(api.customExercises.update, {
         exerciseId: exercise._id,
         ...definition,
-        visibility: 'private',
       }),
     ).rejects.toMatchObject({ data: { code: 'UNAUTHENTICATED' } })
     await expect(
@@ -37,7 +39,7 @@ describe('custom exercises', () => {
     ).rejects.toMatchObject({ data: { code: 'UNAUTHENTICATED' } })
   })
 
-  test('creates private exercises by default and lists only the owner', async () => {
+  test('creates exercises and lists only the owner', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-08-21T08:00:00Z'))
     const t = convexTest(schema, modules)
@@ -49,7 +51,6 @@ describe('custom exercises', () => {
     expect(exercise).toMatchObject({
       name: 'Ring Press',
       notes: 'A useful variation.',
-      visibility: 'private',
       updatedAt: Date.now(),
     })
     await expect(alex.query(api.exercises.list, {})).resolves.toEqual([
@@ -59,12 +60,11 @@ describe('custom exercises', () => {
         notes: 'A useful variation.',
         defaultColumns: ['reps', 'weight'],
         muscles: [],
-        visibility: 'private',
       },
     ])
     await expect(sam.query(api.exercises.list, {})).resolves.toEqual([])
     await expect(
-      t.query(api.customExercises.get, { exerciseId: exercise._id }),
+      sam.query(api.customExercises.get, { exerciseId: exercise._id }),
     ).resolves.toBeNull()
 
     vi.useRealTimers()
@@ -106,7 +106,6 @@ describe('custom exercises', () => {
     await sam.mutation(api.customExercises.create, {
       ...definition,
       name: 'Another User Exercise',
-      visibility: 'public',
     })
 
     await expect(alex.query(api.exercises.list, {})).resolves.toEqual([
@@ -116,7 +115,6 @@ describe('custom exercises', () => {
         notes: 'A useful variation.',
         defaultColumns: ['reps', 'weight'],
         muscles: [],
-        visibility: 'private',
       },
       {
         source: { kind: 'catalog', slug: 'back-squat' },
@@ -125,21 +123,6 @@ describe('custom exercises', () => {
         muscles: [{ slug: 'quads', role: 'primary' }],
       },
     ])
-  })
-
-  test('exposes public exercises without exposing private owner data', async () => {
-    const t = convexTest(schema, modules)
-    const alex = t.withIdentity({ subject: 'user_alex' })
-    const sam = t.withIdentity({ subject: 'user_sam' })
-    const exercise = await alex.mutation(api.customExercises.create, {
-      ...definition,
-      visibility: 'public',
-    })
-
-    await expect(
-      sam.query(api.customExercises.get, { exerciseId: exercise._id }),
-    ).resolves.toEqual(exercise)
-    expect(exercise).not.toHaveProperty('ownerId')
   })
 
   test('lets only the owner update and remove an exercise', async () => {
@@ -153,17 +136,13 @@ describe('custom exercises', () => {
       notes: undefined,
       defaultColumns: ['reps'] as const,
       muscles: [],
-      visibility: 'public' as const,
     }
 
     await expect(
       sam.mutation(api.customExercises.update, update),
     ).rejects.toMatchObject({ data: { code: 'NOT_FOUND' } })
     const updated = await alex.mutation(api.customExercises.update, update)
-    expect(updated).toMatchObject({
-      name: 'Ring Push-Up',
-      visibility: 'public',
-    })
+    expect(updated).toMatchObject({ name: 'Ring Push-Up' })
     expect(updated.notes).toBeUndefined()
     await expect(
       sam.mutation(api.customExercises.remove, { exerciseId: exercise._id }),
