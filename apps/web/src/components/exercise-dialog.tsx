@@ -142,7 +142,7 @@ function ExerciseDialog(props: ExerciseDialogProps) {
           defaultColumns,
           muscles: [],
         })
-        analytics.captureExerciseEvent('exercise_created')
+        analytics.capture('exercise_created')
       } else {
         await updateExercise({
           exerciseId: props.exercise.source.exerciseId,
@@ -151,7 +151,7 @@ function ExerciseDialog(props: ExerciseDialogProps) {
           defaultColumns,
           muscles: props.exercise.muscles,
         })
-        analytics.captureExerciseEvent('exercise_updated')
+        analytics.capture('exercise_updated')
       }
       close()
     } catch {

@@ -1,8 +1,10 @@
-export type Deployment = 'preview' | 'production'
-export type ExerciseEvent =
-  | 'exercise_created'
-  | 'exercise_updated'
-  | 'exercise_deleted'
+import {
+  analyticsProperties,
+  createAnalytics,
+  type Analytics,
+  type AnalyticsClient,
+  type Deployment,
+} from '@kinetic/analytics'
 
 export type AnalyticsConfig = {
   key: string
@@ -16,17 +18,8 @@ type PublicEnvironment = {
   VITE_DEPLOYMENT?: string
 }
 
-export type AnalyticsClient = {
-  capture: (event: string, properties?: Record<string, unknown>) => unknown
-  identify: (distinctId: string) => unknown
-  reset: () => unknown
-}
-
-export type WebAnalytics = {
-  captureExerciseEvent: (event: ExerciseEvent) => void
+export type WebAnalytics = Analytics & {
   capturePageView: (currentUrl: string) => void
-  identify: (workosUserId: string) => void
-  reset: () => void
 }
 
 export function postHogOptions(config: AnalyticsConfig) {
@@ -70,28 +63,21 @@ export function createWebAnalytics(
   config: AnalyticsConfig | undefined,
   client?: AnalyticsClient,
 ): WebAnalytics {
-  if (!config || !client) return disabledAnalytics
+  if (!config || !client) return disabledWebAnalytics
 
-  const commonProperties = {
-    surface: 'web' as const,
+  const analytics = createAnalytics({
+    client,
     deployment: config.deployment,
-  }
+    surface: 'web',
+  })
 
   return {
-    captureExerciseEvent: (event) => {
-      client.capture(event, commonProperties)
-    },
+    ...analytics,
     capturePageView: (currentUrl) => {
       client.capture('$pageview', {
-        ...commonProperties,
+        ...analyticsProperties('web', config.deployment),
         $current_url: stripUrlDetails(currentUrl),
       })
-    },
-    identify: (workosUserId) => {
-      if (workosUserId) client.identify(workosUserId)
-    },
-    reset: () => {
-      client.reset()
     },
   }
 }
@@ -122,11 +108,9 @@ function sanitizePostHogEvent<
   }
 }
 
-const disabledAnalytics: WebAnalytics = {
-  captureExerciseEvent: () => undefined,
+const disabledWebAnalytics: WebAnalytics = {
+  ...createAnalytics({ deployment: 'preview', surface: 'web' }),
   capturePageView: () => undefined,
-  identify: () => undefined,
-  reset: () => undefined,
 }
 
 function isHttpUrl(value: string): boolean {

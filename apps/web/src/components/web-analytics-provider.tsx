@@ -1,3 +1,4 @@
+import type { AnalyticsClient } from '@kinetic/analytics'
 import { useRouter } from '@tanstack/react-router'
 import {
   createContext,
@@ -13,7 +14,6 @@ import {
   postHogOptions,
   readAnalyticsConfig,
   type AnalyticsConfig,
-  type AnalyticsClient,
   type WebAnalytics,
 } from '@/lib/analytics'
 

@@ -31,6 +31,10 @@ eventually use that same ID. No email, name, or other user-authored data is sent
 to PostHog. `surface` (`web`) and `deployment` are the current common event
 dimensions.
 
+Typed event names, common properties, and the vendor-neutral client contract
+live in `@kinetic/analytics`. PostHog configuration and route tracking remain
+Web-specific.
+
 Set `WORKOS_CLIENT_ID` on each new Convex deployment, then run `pnpm dev` from
 `packages/convex` to sync the authentication configuration. Reusing the client
 ID only lets the new deployment validate the same WorkOS access tokens; it does

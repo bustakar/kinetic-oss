@@ -11,6 +11,7 @@
     "test": "node --test src/lib/*.test.ts"
   },
   "dependencies": {
+    "@kinetic/analytics": "workspace:*",
     "@kinetic/convex": "workspace:*",
     "@kinetic/ui": "workspace:*",
     "@tanstack/react-router": "^1.170.30",

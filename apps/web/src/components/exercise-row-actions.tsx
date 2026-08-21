@@ -54,7 +54,7 @@ export function ExerciseRowActions({
     setError(undefined)
     try {
       await removeExercise({ exerciseId: exercise.source.exerciseId })
-      analytics.captureExerciseEvent('exercise_deleted')
+      analytics.capture('exercise_deleted')
       setConfirmOpen(false)
     } catch {
       setError('Exercise could not be deleted. Try again.')

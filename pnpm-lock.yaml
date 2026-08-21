@@ -10,6 +10,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@kinetic/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@kinetic/convex':
         specifier: workspace:*
         version: link:../../packages/convex
@@ -71,6 +74,15 @@ importers:
       vite:
         specifier: 8.2.1
         version: 8.2.1(@types/node@26.2.0)(esbuild@0.27.0)(jiti@2.7.0)
+
+  packages/analytics:
+    devDependencies:
+      '@types/node':
+        specifier: ^26.2.0
+        version: 26.2.0
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
 
   packages/convex:
     dependencies:

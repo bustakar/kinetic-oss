@@ -38,7 +38,7 @@ test('stays a safe no-op without configuration', () => {
     reset: () => (calls += 1),
   })
 
-  analytics.captureExerciseEvent('exercise_created')
+  analytics.capture('exercise_created')
   analytics.capturePageView('https://kinetic.rocks/exercises')
   analytics.identify('user_123')
   analytics.reset()
@@ -70,27 +70,6 @@ test('disables passive collection and session replay', () => {
       featureFlags: true,
     },
   )
-})
-
-test('adds only common properties to exercise events', () => {
-  const captures: Array<{
-    event: string
-    properties?: Record<string, unknown>
-  }> = []
-  const analytics = createWebAnalytics(readAnalyticsConfig(config), {
-    capture: (event, properties) => captures.push({ event, properties }),
-    identify: () => undefined,
-    reset: () => undefined,
-  })
-
-  analytics.captureExerciseEvent('exercise_updated')
-
-  assert.deepEqual(captures, [
-    {
-      event: 'exercise_updated',
-      properties: { surface: 'web', deployment: 'preview' },
-    },
-  ])
 })
 
 test('sanitizes page-view URLs and identifies with only the WorkOS ID', () => {
