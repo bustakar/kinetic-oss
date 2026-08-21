@@ -6,9 +6,9 @@ import {
   SidebarTrigger,
 } from '@kinetic/ui/components/sidebar'
 import { getAuth } from '@workos/authkit-tanstack-react-start'
-import { AuthKitProvider } from '@workos/authkit-tanstack-react-start/client'
 
 import { AppSidebar } from '@/components/app-sidebar'
+import { AuthenticatedConvexProvider } from '@/components/authenticated-convex-provider'
 import { signInEndpoint } from '@/lib/auth'
 
 export const Route = createFileRoute('/_app')({
@@ -40,7 +40,7 @@ function AppLayout() {
   const { initialAuth } = Route.useLoaderData()
 
   return (
-    <AuthKitProvider initialAuth={initialAuth}>
+    <AuthenticatedConvexProvider initialAuth={initialAuth}>
       <SidebarProvider>
         <AppSidebar user={initialAuth.user} />
         <SidebarInset>
@@ -52,6 +52,6 @@ function AppLayout() {
           <Outlet />
         </SidebarInset>
       </SidebarProvider>
-    </AuthKitProvider>
+    </AuthenticatedConvexProvider>
   )
 }

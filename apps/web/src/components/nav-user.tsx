@@ -77,7 +77,9 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => void signOut()}>
+            <DropdownMenuItem
+              onSelect={() => void signOut({ returnTo: window.location.origin })}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

@@ -10,8 +10,9 @@
     "convex": "^1.44.0"
   },
   "devDependencies": {
+    "@types/node": "^26.2.0",
     "convex-test": "^0.0.56",
-    "vitest": "^4.1.11",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.11"
   }
 }
