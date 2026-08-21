@@ -31,9 +31,9 @@ function ExercisesPage() {
           </div>
           <div className="flex items-center gap-3">
             {exercises === undefined ? (
-              <Skeleton className="h-5 w-20" />
+              <Skeleton className="hidden h-5 w-20 sm:block" />
             ) : (
-              <p className="text-sm tabular-nums text-muted-foreground">
+              <p className="hidden text-sm tabular-nums text-muted-foreground sm:block">
                 {exercises.length}{' '}
                 {exercises.length === 1 ? 'exercise' : 'exercises'}
               </p>
