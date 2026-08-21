@@ -22,6 +22,9 @@ importers:
       '@workos/authkit-tanstack-react-start':
         specifier: ^0.11.0
         version: 0.11.0(@tanstack/react-router@1.170.31(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/react-start@1.168.48(crossws@0.4.10(srvx@0.11.22))(esbuild@0.27.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.5)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.27.0)(jiti@2.7.0)))(@workos-inc/node@10.10.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3)
+      convex:
+        specifier: ^1.44.0
+        version: 1.44.0(react@19.2.8)
       lucide-react:
         specifier: ^1.33.0
         version: 1.33.0(react@19.2.8)
@@ -69,6 +72,9 @@ importers:
         specifier: ^1.44.0
         version: 1.44.0(react@19.2.8)
     devDependencies:
+      '@types/node':
+        specifier: ^26.2.0
+        version: 26.2.0
       convex-test:
         specifier: ^0.0.56
         version: 0.0.56(convex@1.44.0(react@19.2.8))
