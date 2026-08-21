@@ -144,7 +144,7 @@ export function createExerciseMcpServer(operations: ExerciseOperations) {
     {
       title: 'Delete custom exercise',
       description:
-        'Permanently delete a custom exercise. Deletion is rejected while a routine references it.',
+        'Permanently delete a custom exercise.',
       inputSchema: z.object({ exerciseId: z.string().min(1) }),
       annotations: {
         readOnlyHint: false,
