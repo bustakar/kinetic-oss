@@ -15,19 +15,7 @@ const columnNames = {
 }
 
 function ExercisesPage() {
-  const catalog = useQuery(api.catalog.current)
-  const exercises =
-    catalog === undefined
-      ? undefined
-      : catalog === null
-        ? []
-        : catalog.exercises
-            .filter((exercise) => exercise.deprecated !== true)
-            .sort(
-              (left, right) =>
-                left.name.localeCompare(right.name) ||
-                left.slug.localeCompare(right.slug),
-            )
+  const exercises = useQuery(api.exercises.list)
 
   return (
     <main className="min-w-0">
@@ -36,7 +24,7 @@ function ExercisesPage() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Exercises</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              The shared Kinetic exercise catalog.
+              Your exercise library.
             </p>
           </div>
           {exercises === undefined ? (
@@ -52,9 +40,9 @@ function ExercisesPage() {
           <ExerciseListSkeleton />
         ) : exercises.length === 0 ? (
           <div className="rounded-xl border border-dashed px-6 py-16 text-center">
-            <p className="font-medium">No catalog exercises yet</p>
+            <p className="font-medium">No exercises yet</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Publish the catalog to make exercises available here.
+              Publish the catalog or create a custom exercise to get started.
             </p>
           </div>
         ) : (
@@ -66,11 +54,18 @@ function ExercisesPage() {
             <ul className="divide-y">
               {exercises.map((exercise) => (
                 <li
-                  key={exercise.slug}
+                  key={exerciseKey(exercise)}
                   className="grid grid-cols-[minmax(0,1fr)_8rem] items-center gap-4 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_12rem] sm:px-5"
                 >
-                  <span className="truncate text-sm font-medium">
-                    {exercise.name}
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate text-sm font-medium">
+                      {exercise.name}
+                    </span>
+                    {exercise.source.kind === 'custom' ? (
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        Custom
+                      </span>
+                    ) : null}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     {exercise.defaultColumns
@@ -85,6 +80,16 @@ function ExercisesPage() {
       </div>
     </main>
   )
+}
+
+function exerciseKey(
+  exercise:
+    | { source: { kind: 'catalog'; slug: string } }
+    | { source: { kind: 'custom'; exerciseId: string } },
+) {
+  return exercise.source.kind === 'catalog'
+    ? `catalog:${exercise.source.slug}`
+    : `custom:${exercise.source.exerciseId}`
 }
 
 function ExerciseListSkeleton() {
