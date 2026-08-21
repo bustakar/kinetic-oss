@@ -46,7 +46,7 @@ test('stays a safe no-op without configuration', () => {
   assert.equal(calls, 0)
 })
 
-test('disables passive collection and session replay', () => {
+test('disables passive collection while preserving campaign attribution', () => {
   const analyticsConfig = readAnalyticsConfig(config)
   assert.ok(analyticsConfig)
 
@@ -59,6 +59,7 @@ test('disables passive collection and session replay', () => {
       captureExceptions: postHogOptions(analyticsConfig).capture_exceptions,
       sessionReplay: postHogOptions(analyticsConfig).disable_session_recording,
       featureFlags: postHogOptions(analyticsConfig).advanced_disable_feature_flags,
+      campaignParams: postHogOptions(analyticsConfig).save_campaign_params,
     },
     {
       autocapture: false,
@@ -68,6 +69,7 @@ test('disables passive collection and session replay', () => {
       captureExceptions: false,
       sessionReplay: true,
       featureFlags: true,
+      campaignParams: true,
     },
   )
 })
