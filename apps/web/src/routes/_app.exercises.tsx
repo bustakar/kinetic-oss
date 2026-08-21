@@ -24,7 +24,7 @@ function ExercisesPage() {
     )
 
   return (
-    <main className="min-w-0 flex-1 overflow-auto">
+    <main className="min-w-0">
       <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <header className="mb-6 flex items-end justify-between gap-4">
           <div>
