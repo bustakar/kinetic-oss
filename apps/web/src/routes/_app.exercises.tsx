@@ -24,7 +24,7 @@ const columnNames = {
 }
 
 function ExercisesPage() {
-  const exercises = useQuery(api.exercises.list)
+  const exercises = useQuery(api.exercises.list, {})
   const [editing, setEditing] = useState<CustomExercise>()
 
   return (

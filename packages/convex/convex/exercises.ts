@@ -34,9 +34,9 @@ type ExerciseDefinition = Infer<typeof ownedExerciseDefinition>
 type ExerciseListItem = Infer<typeof exerciseListItem>
 
 export const list = query({
-  args: {},
+  args: { query: v.optional(v.string()) },
   returns: v.array(exerciseListItem),
-  handler: async (ctx) => {
+  handler: async (ctx, { query }) => {
     const ownerId = await requireOwnerId(ctx)
     const [state, ownedExercises] = await Promise.all([
       ctx.db
@@ -58,7 +58,7 @@ export const list = query({
             )
             .collect()
 
-    return [
+    const exercises = [
       ...catalogExercises
         .filter((item) => item.deprecated !== true)
         .map((item) => ({
@@ -75,6 +75,13 @@ export const list = query({
         muscles: item.muscles,
       })),
     ].sort(byName)
+
+    const normalizedQuery = query?.trim().toLowerCase()
+    return normalizedQuery
+      ? exercises.filter((exercise) =>
+          exercise.name.toLowerCase().includes(normalizedQuery),
+        )
+      : exercises
   },
 })
 
@@ -133,6 +140,24 @@ export const remove = mutation({
   handler: async (ctx, { exerciseId }) => {
     const ownerId = await requireOwnerId(ctx)
     await requireOwnedExercise(ctx, exerciseId, ownerId)
+    const routines = await ctx.db
+      .query('routines')
+      .withIndex('by_owner', (q) => q.eq('ownerId', ownerId))
+      .collect()
+    if (
+      routines.some((routine) =>
+        routine.exercises.some(
+          (exercise) =>
+            exercise.exercise.kind === 'custom' &&
+            exercise.exercise.exerciseId === exerciseId,
+        ),
+      )
+    ) {
+      throw new ConvexError({
+        code: 'EXERCISE_IN_USE',
+        message: 'Exercise is used by a routine and cannot be deleted.',
+      })
+    }
     await ctx.db.delete(exerciseId)
     return exerciseId
   },
