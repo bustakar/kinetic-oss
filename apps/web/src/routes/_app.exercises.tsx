@@ -2,8 +2,15 @@ import { api } from '@kinetic/convex/api'
 import { Skeleton } from '@kinetic/ui/components/skeleton'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from 'convex/react'
+import { useState } from 'react'
 
-import { ExerciseCreateDialog } from '@/components/exercise-create-dialog'
+import {
+  ExerciseCreateDialog,
+  ExerciseEditDialog,
+  isCustomExercise,
+} from '@/components/exercise-dialog'
+import type { CustomExercise } from '@/components/exercise-dialog'
+import { ExerciseRowActions } from '@/components/exercise-row-actions'
 
 export const Route = createFileRoute('/_app/exercises')({
   head: () => ({ meta: [{ title: 'Exercises · Kinetic' }] }),
@@ -18,6 +25,7 @@ const columnNames = {
 
 function ExercisesPage() {
   const exercises = useQuery(api.exercises.list)
+  const [editing, setEditing] = useState<CustomExercise>()
 
   return (
     <main className="min-w-0">
@@ -53,36 +61,50 @@ function ExercisesPage() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border bg-card">
-            <div className="grid grid-cols-[minmax(0,1fr)_8rem] gap-4 border-b bg-muted/40 px-4 py-2.5 text-xs font-medium text-muted-foreground sm:grid-cols-[minmax(0,1fr)_12rem] sm:px-5">
+            <div className="grid grid-cols-[minmax(0,1fr)_8rem_2rem] gap-2 border-b bg-muted/40 px-4 py-2.5 text-xs font-medium text-muted-foreground sm:grid-cols-[minmax(0,1fr)_12rem_2rem] sm:gap-4 sm:px-5">
               <span>Exercise</span>
               <span>Tracks</span>
+              <span className="sr-only">Actions</span>
             </div>
             <ul className="divide-y">
               {exercises.map((exercise) => (
                 <li
                   key={exerciseKey(exercise)}
-                  className="grid grid-cols-[minmax(0,1fr)_8rem] items-center gap-4 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_12rem] sm:px-5"
+                  className="grid grid-cols-[minmax(0,1fr)_8rem_2rem] items-center gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_12rem_2rem] sm:gap-4 sm:px-5"
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="truncate text-sm font-medium">
                       {exercise.name}
                     </span>
-                    {exercise.source.kind === 'custom' ? (
-                      <span className="shrink-0 text-xs text-muted-foreground">
+                    {isCustomExercise(exercise) ? (
+                      <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">
                         Custom
                       </span>
                     ) : null}
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="truncate text-sm text-muted-foreground">
                     {exercise.defaultColumns
                       .map((column) => columnNames[column])
                       .join(' · ')}
                   </span>
+                  {isCustomExercise(exercise) ? (
+                    <ExerciseRowActions exercise={exercise} onEdit={setEditing} />
+                  ) : null}
                 </li>
               ))}
             </ul>
           </div>
         )}
+        {editing ? (
+          <ExerciseEditDialog
+            key={editing.source.exerciseId}
+            exercise={editing}
+            open
+            onOpenChange={(open) => {
+              if (!open) setEditing(undefined)
+            }}
+          />
+        ) : null}
       </div>
     </main>
   )
@@ -105,7 +127,7 @@ function ExerciseListSkeleton() {
       {Array.from({ length: 8 }, (_, index) => (
         <div
           key={index}
-          className="grid grid-cols-[minmax(0,1fr)_8rem] gap-4 border-b px-4 py-3 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_12rem] sm:px-5"
+          className="grid grid-cols-[minmax(0,1fr)_8rem_2rem] gap-2 border-b px-4 py-3 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_12rem_2rem] sm:gap-4 sm:px-5"
         >
           <Skeleton className="h-5 w-48 max-w-full" />
           <Skeleton className="h-5 w-20" />
