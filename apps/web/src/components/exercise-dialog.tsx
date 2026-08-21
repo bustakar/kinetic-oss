@@ -22,11 +22,33 @@ import {
 import { Input } from '@kinetic/ui/components/input'
 import { Textarea } from '@kinetic/ui/components/textarea'
 import { useMutation } from 'convex/react'
+import type { FunctionReturnType } from 'convex/server'
 import { PlusIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 
 type ExerciseColumn = 'reps' | 'time' | 'weight'
+type ExerciseListItem = FunctionReturnType<typeof api.exercises.list>[number]
+export type CustomExercise = Extract<
+  ExerciseListItem,
+  { source: { kind: 'custom' } }
+>
+
+export function isCustomExercise(
+  exercise: ExerciseListItem,
+): exercise is CustomExercise {
+  return exercise.source.kind === 'custom'
+}
+
+type Draft = { name: string; notes: string; columns: ExerciseColumn[] }
+type ExerciseDialogProps =
+  | { kind: 'create' }
+  | {
+      kind: 'edit'
+      exercise: CustomExercise
+      open: boolean
+      onOpenChange: (open: boolean) => void
+    }
 
 const columnOptions: Array<{
   id: ExerciseColumn
@@ -38,27 +60,52 @@ const columnOptions: Array<{
   { id: 'weight', label: 'Weight', description: 'Record the load used.' },
 ]
 
-const initialDraft: { name: string; notes: string; columns: ExerciseColumn[] } = {
-  name: '',
-  notes: '',
-  columns: [],
+export function ExerciseCreateDialog() {
+  return <ExerciseDialog kind="create" />
 }
 
-export function ExerciseCreateDialog() {
+export function ExerciseEditDialog({
+  exercise,
+  open,
+  onOpenChange,
+}: {
+  exercise: CustomExercise
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  return (
+    <ExerciseDialog
+      kind="edit"
+      exercise={exercise}
+      open={open}
+      onOpenChange={onOpenChange}
+    />
+  )
+}
+
+function ExerciseDialog(props: ExerciseDialogProps) {
   const createExercise = useMutation(api.exercises.create)
+  const updateExercise = useMutation(api.exercises.update)
   const pending = useRef(false)
-  const [open, setOpen] = useState(false)
-  const [draft, setDraft] = useState(initialDraft)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [draft, setDraft] = useState(() => draftFor(props))
   const [error, setError] = useState<string>()
   const [saving, setSaving] = useState(false)
+  const open = props.kind === 'create' ? createOpen : props.open
 
   function changeOpen(next: boolean) {
     if (saving) return
     if (next) {
-      setDraft(initialDraft)
+      setDraft(draftFor(props))
       setError(undefined)
     }
-    setOpen(next)
+    if (props.kind === 'create') setCreateOpen(next)
+    else props.onOpenChange(next)
+  }
+
+  function close() {
+    if (props.kind === 'create') setCreateOpen(false)
+    else props.onOpenChange(false)
   }
 
   function toggleColumn(column: ExerciseColumn, checked: boolean) {
@@ -85,30 +132,47 @@ export function ExerciseCreateDialog() {
       .map((column) => column.id)
 
     try {
-      await createExercise({
-        name,
-        notes: draft.notes.trim() || undefined,
-        defaultColumns,
-        muscles: [],
-      })
-      setOpen(false)
-      setDraft(initialDraft)
+      if (props.kind === 'create') {
+        await createExercise({
+          name,
+          notes: draft.notes.trim() || undefined,
+          defaultColumns,
+          muscles: [],
+        })
+      } else {
+        await updateExercise({
+          exerciseId: props.exercise.source.exerciseId,
+          name,
+          notes: draft.notes.trim() || undefined,
+          defaultColumns,
+          muscles: props.exercise.muscles,
+        })
+      }
+      close()
     } catch {
-      setError('Exercise could not be created. Try again.')
+      setError(
+        props.kind === 'create'
+          ? 'Exercise could not be created. Try again.'
+          : 'Exercise could not be saved. Try again.',
+      )
     } finally {
       pending.current = false
       setSaving(false)
     }
   }
 
+  const editing = props.kind === 'edit'
+
   return (
     <Dialog open={open} onOpenChange={changeOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <PlusIcon />
-          New exercise
-        </Button>
-      </DialogTrigger>
+      {editing ? null : (
+        <DialogTrigger asChild>
+          <Button size="sm">
+            <PlusIcon />
+            New exercise
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent
         className="max-h-[calc(100dvh-2rem)] overflow-hidden p-0"
         showCloseButton={!saving}
@@ -118,9 +182,11 @@ export function ExerciseCreateDialog() {
           onSubmit={submit}
         >
           <DialogHeader className="shrink-0 border-b px-6 py-5">
-            <DialogTitle>New exercise</DialogTitle>
+            <DialogTitle>{editing ? 'Edit exercise' : 'New exercise'}</DialogTitle>
             <DialogDescription>
-              Add a movement and choose what each set records.
+              {editing
+                ? 'Update the movement and its default set columns.'
+                : 'Add a movement and choose what each set records.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -216,11 +282,26 @@ export function ExerciseCreateDialog() {
                 draft.columns.length === 0
               }
             >
-              {saving ? 'Creating…' : 'Create exercise'}
+              {saving
+                ? editing
+                  ? 'Saving…'
+                  : 'Creating…'
+                : editing
+                  ? 'Save changes'
+                  : 'Create exercise'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   )
+}
+
+function draftFor(props: ExerciseDialogProps): Draft {
+  if (props.kind === 'create') return { name: '', notes: '', columns: [] }
+  return {
+    name: props.exercise.name,
+    notes: props.exercise.notes ?? '',
+    columns: [...props.exercise.defaultColumns],
+  }
 }
