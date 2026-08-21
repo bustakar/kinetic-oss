@@ -2,6 +2,9 @@
   "name": "@kinetic/convex",
   "private": true,
   "type": "module",
+  "exports": {
+    "./api": "./convex/_generated/api.js"
+  },
   "scripts": {
     "check": "tsc --project convex/tsconfig.json --noEmit && vitest run",
     "dev": "convex dev"

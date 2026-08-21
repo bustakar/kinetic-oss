@@ -1,4 +1,5 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
+import { ScrollArea } from '@kinetic/ui/components/scroll-area'
 import { Separator } from '@kinetic/ui/components/separator'
 import {
   SidebarInset,
@@ -41,15 +42,17 @@ function AppLayout() {
 
   return (
     <AuthenticatedConvexProvider initialAuth={initialAuth}>
-      <SidebarProvider>
+      <SidebarProvider className="h-svh min-h-0 overflow-hidden">
         <AppSidebar user={initialAuth.user} />
-        <SidebarInset>
+        <SidebarInset className="min-h-0 overflow-hidden">
           <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <span className="text-sm font-medium">Kinetic</span>
           </header>
-          <Outlet />
+          <ScrollArea className="min-h-0 flex-1">
+            <Outlet />
+          </ScrollArea>
         </SidebarInset>
       </SidebarProvider>
     </AuthenticatedConvexProvider>

@@ -2,12 +2,16 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@kinetic/ui/components/sidebar'
-import { Link } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
+import { Dumbbell } from 'lucide-react'
 
 import { NavUser } from '@/components/nav-user'
 import { userDisplayName } from '@/lib/auth'
@@ -21,6 +25,10 @@ type SidebarUser = {
 
 export function AppSidebar({ user }: { user: SidebarUser }) {
   const name = userDisplayName(user)
+  const { setOpenMobile } = useSidebar()
+  const exercisesActive = useRouterState({
+    select: (state) => state.location.pathname.startsWith('/exercises'),
+  })
 
   return (
     <Sidebar variant="inset">
@@ -28,7 +36,7 @@ export function AppSidebar({ user }: { user: SidebarUser }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
+              <Link to="/" onClick={() => setOpenMobile(false)}>
                 <img
                   src="/kinetic-icon.svg"
                   alt=""
@@ -40,7 +48,26 @@ export function AppSidebar({ user }: { user: SidebarUser }) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent />
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={exercisesActive}
+                  tooltip="Exercises"
+                >
+                  <Link to="/exercises" onClick={() => setOpenMobile(false)}>
+                    <Dumbbell />
+                    <span>Exercises</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
       <SidebarFooter>
         <NavUser
           user={{
