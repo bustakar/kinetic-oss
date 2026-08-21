@@ -36,12 +36,6 @@ export function validateCatalogSnapshot(snapshot: CatalogSnapshot): void {
     if (new Set(exercise.defaultColumns).size !== exercise.defaultColumns.length) {
       throw new Error(`Exercise ${exercise.slug} has duplicate set columns`)
     }
-    const repetitionColumns = Number(exercise.defaultColumns.includes('reps'))
-      + Number(exercise.defaultColumns.includes('time'))
-    if (repetitionColumns !== 1) {
-      throw new Error(`Exercise ${exercise.slug} must use exactly one of reps or time`)
-    }
-
     const referencedMuscles = new Set<string>()
     let hasPrimaryMuscle = false
     for (const muscle of exercise.muscles) {

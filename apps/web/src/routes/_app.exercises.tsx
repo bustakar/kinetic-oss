@@ -3,6 +3,8 @@ import { Skeleton } from '@kinetic/ui/components/skeleton'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from 'convex/react'
 
+import { ExerciseCreateDialog } from '@/components/exercise-create-dialog'
+
 export const Route = createFileRoute('/_app/exercises')({
   head: () => ({ meta: [{ title: 'Exercises · Kinetic' }] }),
   component: ExercisesPage,
@@ -27,13 +29,17 @@ function ExercisesPage() {
               Your exercise library.
             </p>
           </div>
-          {exercises === undefined ? (
-            <Skeleton className="h-5 w-20" />
-          ) : (
-            <p className="text-sm tabular-nums text-muted-foreground">
-              {exercises.length} exercises
-            </p>
-          )}
+          <div className="flex items-center gap-3">
+            {exercises === undefined ? (
+              <Skeleton className="h-5 w-20" />
+            ) : (
+              <p className="text-sm tabular-nums text-muted-foreground">
+                {exercises.length}{' '}
+                {exercises.length === 1 ? 'exercise' : 'exercises'}
+              </p>
+            )}
+            <ExerciseCreateDialog />
+          </div>
         </header>
 
         {exercises === undefined ? (
