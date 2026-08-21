@@ -5,8 +5,9 @@ import {
   type AuthKitProviderProps,
 } from '@workos/authkit-tanstack-react-start/client'
 import { ConvexProviderWithAuth, ConvexReactClient } from 'convex/react'
-import { useCallback, useMemo, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, type ReactNode } from 'react'
 
+import { useWebAnalytics } from '@/components/web-analytics-provider'
 import {
   createAccessTokenFetcher,
   validateConvexUrl,
@@ -46,9 +47,15 @@ export function AuthenticatedConvexProvider({
   initialAuth,
 }: {
   children: ReactNode
-  initialAuth: AuthKitProviderProps['initialAuth']
+  initialAuth: NonNullable<AuthKitProviderProps['initialAuth']>
 }) {
   const client = useMemo(createConvexClient, [])
+  const analytics = useWebAnalytics()
+  const workosUserId = initialAuth.user?.id
+
+  useEffect(() => {
+    if (workosUserId) analytics.identify(workosUserId)
+  }, [analytics, workosUserId])
 
   return (
     <AuthKitProvider initialAuth={initialAuth}>

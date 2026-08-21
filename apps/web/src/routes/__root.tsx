@@ -1,6 +1,8 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TooltipProvider } from '@kinetic/ui/components/tooltip'
 
+import { WebAnalyticsProvider } from '@/components/web-analytics-provider'
+
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
@@ -28,7 +30,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <TooltipProvider>{children}</TooltipProvider>
+        <WebAnalyticsProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </WebAnalyticsProvider>
         <Scripts />
       </body>
     </html>

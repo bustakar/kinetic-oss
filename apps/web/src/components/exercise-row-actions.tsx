@@ -23,6 +23,7 @@ import { useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 
 import type { CustomExercise } from '@/components/exercise-dialog'
+import { useWebAnalytics } from '@/components/web-analytics-provider'
 
 export function ExerciseRowActions({
   exercise,
@@ -32,6 +33,7 @@ export function ExerciseRowActions({
   onEdit: (exercise: CustomExercise) => void
 }) {
   const removeExercise = useMutation(api.exercises.remove)
+  const analytics = useWebAnalytics()
   const pending = useRef(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -52,6 +54,7 @@ export function ExerciseRowActions({
     setError(undefined)
     try {
       await removeExercise({ exerciseId: exercise.source.exerciseId })
+      analytics.capture('exercise_deleted')
       setConfirmOpen(false)
     } catch {
       setError('Exercise could not be deleted. Try again.')

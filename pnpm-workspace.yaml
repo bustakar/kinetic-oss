@@ -6,4 +6,5 @@ minimumReleaseAgeExclude:
   - convex-test@0.0.56
 
 allowBuilds:
+  core-js: false
   esbuild: true
