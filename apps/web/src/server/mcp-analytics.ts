@@ -33,7 +33,7 @@ const config = readMcpAnalyticsConfig(process.env)
 const posthog = config
   ? new PostHog(config.token, {
       host: config.host,
-      enableExceptionAutocapture: true,
+      enableExceptionAutocapture: false,
       flushAt: 1,
       flushInterval: 0,
     })
