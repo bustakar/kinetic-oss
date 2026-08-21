@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppExercisesRouteImport } from './routes/_app.exercises'
 import { Route as ApiAuthCallbackRouteImport } from './routes/api.auth.callback'
 import { Route as ApiAuthSignInRouteImport } from './routes/api.auth.sign-in'
 
@@ -29,6 +30,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppExercisesRoute = AppExercisesRouteImport.update({
+  id: '/exercises',
+  path: '/exercises',
+  getParentRoute: () => AppRoute,
+} as any)
 const ApiAuthCallbackRoute = ApiAuthCallbackRouteImport.update({
   id: '/api/auth/callback',
   path: '/api/auth/callback',
@@ -43,11 +49,13 @@ const ApiAuthSignInRoute = ApiAuthSignInRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/sign-in': typeof SignInRoute
+  '/exercises': typeof AppExercisesRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/sign-in': typeof ApiAuthSignInRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
+  '/exercises': typeof AppExercisesRoute
   '/': typeof AppIndexRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/sign-in': typeof ApiAuthSignInRoute
@@ -56,19 +64,23 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/sign-in': typeof SignInRoute
+  '/_app/exercises': typeof AppExercisesRoute
   '/_app/': typeof AppIndexRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
   '/api/auth/sign-in': typeof ApiAuthSignInRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-in' | '/api/auth/callback' | '/api/auth/sign-in'
+  fullPaths:
+    '/' | '/sign-in' | '/exercises' | '/api/auth/callback' | '/api/auth/sign-in'
   fileRoutesByTo: FileRoutesByTo
-  to: '/sign-in' | '/' | '/api/auth/callback' | '/api/auth/sign-in'
+  to:
+    '/sign-in' | '/exercises' | '/' | '/api/auth/callback' | '/api/auth/sign-in'
   id:
     | '__root__'
     | '/_app'
     | '/sign-in'
+    | '/_app/exercises'
     | '/_app/'
     | '/api/auth/callback'
     | '/api/auth/sign-in'
@@ -104,6 +116,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/exercises': {
+      id: '/_app/exercises'
+      path: '/exercises'
+      fullPath: '/exercises'
+      preLoaderRoute: typeof AppExercisesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/auth/callback': {
       id: '/api/auth/callback'
       path: '/api/auth/callback'
@@ -122,10 +141,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppExercisesRoute: typeof AppExercisesRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppExercisesRoute: AppExercisesRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
