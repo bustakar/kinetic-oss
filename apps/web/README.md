@@ -17,3 +17,8 @@ Set `WORKOS_CLIENT_ID` on each new Convex deployment, then run `pnpm dev` from
 `packages/convex` to sync the authentication configuration. Reusing the client
 ID only lets the new deployment validate the same WorkOS access tokens; it does
 not modify the existing Convex deployment or WorkOS project.
+
+To enable MCP, configure `MCP_RESOURCE_URL` and `WORKOS_AUTHKIT_DOMAIN` on both
+the web runtime and its Convex deployment, then sync the Convex authentication
+configuration. Use the public `/mcp` URL rather than the local example for a
+hosted deployment.
