@@ -123,6 +123,16 @@ describe('exercises', () => {
         muscles: [{ slug: 'quads', role: 'primary' }],
       },
     ])
+    await expect(
+      alex.query(api.exercises.list, { query: '  BACK  ' }),
+    ).resolves.toEqual([
+      {
+        source: { kind: 'catalog', slug: 'back-squat' },
+        name: 'Back Squat',
+        defaultColumns: ['reps', 'weight'],
+        muscles: [{ slug: 'quads', role: 'primary' }],
+      },
+    ])
   })
 
   test('lets only the owner update and remove an exercise', async () => {

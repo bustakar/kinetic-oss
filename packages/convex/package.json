@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./api": "./convex/_generated/api.js"
+    "./api": "./convex/_generated/api.js",
+    "./mcp-configuration": "./convex/mcpConfiguration.ts"
   },
   "scripts": {
     "check": "tsc --project convex/tsconfig.json --noEmit && vitest run",
