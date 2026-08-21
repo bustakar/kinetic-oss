@@ -14,7 +14,7 @@ concurrency:
 
 env:
   NITRO_PRESET: vercel
-  VERCEL_CLI_VERSION: 48.1.6
+  VERCEL_CLI_VERSION: 58.7.1
   VERCEL_ORG_ID: team_esSULRmJBnOfyHWO2i1AEen4
   VERCEL_PROJECT_ID: prj_qAKuGA2bydHuJRoF58coOa7IrbR5
 
