@@ -165,36 +165,6 @@ describe('exercises', () => {
     ).resolves.toBeNull()
   })
 
-  test('does not remove an exercise referenced by a routine', async () => {
-    const t = convexTest(schema, modules)
-    const alex = t.withIdentity({ subject: 'user_alex' })
-    const exercise = await alex.mutation(api.exercises.create, definition)
-
-    await t.run(async (ctx) => {
-      await ctx.db.insert('routines', {
-        ownerId: 'user_alex',
-        visibility: 'private',
-        updatedAt: Date.now(),
-        name: 'Push',
-        exercises: [
-          {
-            id: 'routine-exercise-1',
-            exercise: { kind: 'custom', exerciseId: exercise._id },
-            columns: [{ id: 'reps', type: 'reps', name: 'Reps' }],
-            sets: [],
-          },
-        ],
-      })
-    })
-
-    await expect(
-      alex.mutation(api.exercises.remove, { exerciseId: exercise._id }),
-    ).rejects.toMatchObject({ data: { code: 'EXERCISE_IN_USE' } })
-    await expect(
-      alex.query(api.exercises.get, { exerciseId: exercise._id }),
-    ).resolves.toMatchObject({ _id: exercise._id })
-  })
-
   test('validates measurement columns and active catalog muscles', async () => {
     const t = convexTest(schema, modules)
     const alex = t.withIdentity({ subject: 'user_alex' })

@@ -140,24 +140,6 @@ export const remove = mutation({
   handler: async (ctx, { exerciseId }) => {
     const ownerId = await requireOwnerId(ctx)
     await requireOwnedExercise(ctx, exerciseId, ownerId)
-    const routines = await ctx.db
-      .query('routines')
-      .withIndex('by_owner', (q) => q.eq('ownerId', ownerId))
-      .collect()
-    if (
-      routines.some((routine) =>
-        routine.exercises.some(
-          (exercise) =>
-            exercise.exercise.kind === 'custom' &&
-            exercise.exercise.exerciseId === exerciseId,
-        ),
-      )
-    ) {
-      throw new ConvexError({
-        code: 'EXERCISE_IN_USE',
-        message: 'Exercise is used by a routine and cannot be deleted.',
-      })
-    }
     await ctx.db.delete(exerciseId)
     return exerciseId
   },

@@ -243,7 +243,6 @@ function publicError(error: unknown) {
 }
 
 const publicErrorCodes = new Set([
-  'EXERCISE_IN_USE',
   'INVALID_INPUT',
   'NOT_FOUND',
   'UNAUTHENTICATED',
