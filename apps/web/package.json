@@ -15,6 +15,7 @@
     "@kinetic/convex": "workspace:*",
     "@kinetic/ui": "workspace:*",
     "@modelcontextprotocol/server": "^2.0.0",
+    "@posthog/mcp": "0.11.7",
     "@tanstack/react-router": "^1.170.30",
     "@tanstack/react-start": "^1.168.47",
     "@workos/authkit-tanstack-react-start": "^0.11.0",
@@ -22,6 +23,7 @@
     "jose": "^6.2.9",
     "lucide-react": "^1.33.0",
     "posthog-js": "^1.418.5",
+    "posthog-node": "^5.49.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "zod": "^4.4.3"

@@ -22,6 +22,9 @@ importers:
       '@modelcontextprotocol/server':
         specifier: ^2.0.0
         version: 2.0.0
+      '@posthog/mcp':
+        specifier: 0.11.7
+        version: 0.11.7(@modelcontextprotocol/server@2.0.0)(posthog-node@5.49.2)
       '@tanstack/react-router':
         specifier: ^1.170.30
         version: 1.170.31(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -43,6 +46,9 @@ importers:
       posthog-js:
         specifier: ^1.418.5
         version: 1.418.5
+      posthog-node:
+        specifier: ^5.49.2
+        version: 5.49.2
       react:
         specifier: ^19.2.0
         version: 19.2.8
@@ -441,6 +447,22 @@ packages:
 
   '@posthog/core@1.48.5':
     resolution: {integrity: sha512-ZE27PmVyPmw9wZOVVyn64uaTdqhopuwQfX7PzBpyCvsezuvNmrUHAMpJKkqOvaHxu7HeJt1jTQtjtTuwy+S7Og==}
+
+  '@posthog/core@1.48.6':
+    resolution: {integrity: sha512-lvSO1nrxxakrAfB51fetHC29gSqdDtT+AyRrGlnc5nDSWhiBGtyqKNjDqsbnlTQoj14bAaWXS7RtzuGoTo5IsQ==}
+
+  '@posthog/mcp@0.11.7':
+    resolution: {integrity: sha512-hDokMScYN1LAYbQdO4vBSF7/hpnC0WvEz0xpC/m1zru7jaNXFIy8AMm4F6K40J3BX0EE9LzNdAPPA1bp5ntxsQ==}
+    engines: {node: ^20.20.0 || >=22.22.0}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.26.0'
+      '@modelcontextprotocol/server': '>=2.0.0'
+      posthog-node: ^5.0.0
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+      '@modelcontextprotocol/server':
+        optional: true
 
   '@posthog/types@1.405.0':
     resolution: {integrity: sha512-4rZ/taVXKQxs9Jrf7ZjlCRgrOSL69oKAgIWJQa5kRNJ6wll1UANbrJTSY+Su1e88LIG4zZVjKKKjyQHCkHdHcw==}
@@ -2094,6 +2116,15 @@ packages:
   posthog-js@1.418.5:
     resolution: {integrity: sha512-Ju3vRsQtr5gjd+3Hwax2sFETOlwkpx2my38RlIDssk1SIf5FFiLDbp9qZcf3OgWAwRlctfFkcpO7fvsA2NpPuw==}
 
+  posthog-node@5.49.2:
+    resolution: {integrity: sha512-+ihwLaB+zoP7mOdk8bOV8phWhoS/U9zG9tnA49B0BGLjNt9rQ05zp9DPnwSYjh9wZkN8zD2V+LMYV6W9pQosVg==}
+    engines: {node: ^20.20.0 || >=22.22.0}
+    peerDependencies:
+      rxjs: ^7.0.0
+    peerDependenciesMeta:
+      rxjs:
+        optional: true
+
   preact@10.29.8:
     resolution: {integrity: sha512-ej2aVZ+vZ8WO7tvlQWRM9N63A0KzF9q4mWJfDUHgYaIofWY9hu74QdnQrjoPMmZi2/nZ5gN0bJCQF49xQqx09Q==}
     peerDependencies:
@@ -2822,6 +2853,17 @@ snapshots:
   '@posthog/core@1.48.5':
     dependencies:
       '@posthog/types': 1.405.0
+
+  '@posthog/core@1.48.6':
+    dependencies:
+      '@posthog/types': 1.405.0
+
+  '@posthog/mcp@0.11.7(@modelcontextprotocol/server@2.0.0)(posthog-node@5.49.2)':
+    dependencies:
+      '@posthog/core': 1.48.5
+      posthog-node: 5.49.2
+    optionalDependencies:
+      '@modelcontextprotocol/server': 2.0.0
 
   '@posthog/types@1.405.0': {}
 
@@ -4431,6 +4473,10 @@ snapshots:
       web-vitals-soft-navs: web-vitals@6.0.0
     transitivePeerDependencies:
       - preact-render-to-string
+
+  posthog-node@5.49.2:
+    dependencies:
+      '@posthog/core': 1.48.6
 
   preact@10.29.8: {}
 
