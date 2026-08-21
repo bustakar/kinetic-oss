@@ -18,6 +18,11 @@ import { z } from 'zod'
 
 import { validateConvexUrl } from '../lib/convex-auth.ts'
 import { workosTokenVerifier } from '../lib/mcp-auth.ts'
+import {
+  flushMcpAnalytics,
+  instrumentMcpAnalytics,
+  type McpServerAnalytics,
+} from './mcp-analytics.ts'
 
 type ExerciseId = FunctionArgs<typeof api.exercises.get>['exerciseId']
 
@@ -35,6 +40,10 @@ export type ExerciseOperations = {
     args: FunctionArgs<typeof api.exercises.remove>,
   ) => Promise<FunctionReturnType<typeof api.exercises.remove>>
 }
+
+type InstrumentMcpAnalytics = (
+  server: McpServer,
+) => McpServerAnalytics | undefined
 
 const setColumn = z.enum(['reps', 'time', 'weight'])
 const muscleReference = z.object({
@@ -59,7 +68,10 @@ const exerciseDefinition = z.object({
     ),
 })
 
-export function createExerciseMcpServer(operations: ExerciseOperations) {
+export function createExerciseMcpServer(
+  operations: ExerciseOperations,
+  instrumentAnalytics?: InstrumentMcpAnalytics,
+) {
   const server = new McpServer(
     { name: 'kinetic', version: '1.0.0' },
     {
@@ -67,6 +79,7 @@ export function createExerciseMcpServer(operations: ExerciseOperations) {
         "Kinetic is the user's exercise library. Catalog exercises are read-only. Read an existing custom exercise before updating or deleting it.",
     },
   )
+  const analytics = instrumentAnalytics?.(server)
 
   server.registerTool(
     'list_exercises',
@@ -105,12 +118,16 @@ export function createExerciseMcpServer(operations: ExerciseOperations) {
       },
     },
     (input) =>
-      runTool(async () => ({
-        exercise: await operations.create({
-          ...input,
-          notes: input.notes || undefined,
+      runTool(
+        async () => ({
+          exercise: await operations.create({
+            ...input,
+            notes: input.notes || undefined,
+          }),
         }),
-      })),
+        analytics,
+        'exercise_created',
+      ),
   )
 
   server.registerTool(
@@ -130,13 +147,17 @@ export function createExerciseMcpServer(operations: ExerciseOperations) {
       },
     },
     ({ exerciseId, ...input }) =>
-      runTool(async () => ({
-        exercise: await operations.update({
-          exerciseId: exerciseId as ExerciseId,
-          ...input,
-          notes: input.notes || undefined,
+      runTool(
+        async () => ({
+          exercise: await operations.update({
+            exerciseId: exerciseId as ExerciseId,
+            ...input,
+            notes: input.notes || undefined,
+          }),
         }),
-      })),
+        analytics,
+        'exercise_updated',
+      ),
   )
 
   server.registerTool(
@@ -154,11 +175,15 @@ export function createExerciseMcpServer(operations: ExerciseOperations) {
       },
     },
     ({ exerciseId }) =>
-      runTool(async () => ({
-        exerciseId: await operations.remove({
-          exerciseId: exerciseId as ExerciseId,
+      runTool(
+        async () => ({
+          exerciseId: await operations.remove({
+            exerciseId: exerciseId as ExerciseId,
+          }),
         }),
-      })),
+        analytics,
+        'exercise_deleted',
+      ),
   )
 
   return server
@@ -193,10 +218,16 @@ export async function handleMcpRequest(
   if (authInfo instanceof Response) return authInfo
 
   const operations = dependencies.operations ?? convexOperations
-  const handler = createMcpHandler(() =>
-    createExerciseMcpServer(operations(authInfo.token)),
+  const handler = createMcpHandler(({ authInfo: requestAuthInfo, era }) =>
+    createExerciseMcpServer(operations(authInfo.token), (server) =>
+      instrumentMcpAnalytics(server, requestAuthInfo ?? authInfo, era),
+    ),
   )
-  return handler.fetch(request, { authInfo })
+  try {
+    return await handler.fetch(request, { authInfo })
+  } finally {
+    await flushMcpAnalytics()
+  }
 }
 
 function convexOperations(token: string): ExerciseOperations {
@@ -214,9 +245,12 @@ function convexOperations(token: string): ExerciseOperations {
 
 async function runTool(
   operation: () => Promise<Record<string, unknown>>,
+  analytics?: McpServerAnalytics,
+  event?: Parameters<McpServerAnalytics['capture']>[0],
 ) {
   try {
     const value = await operation()
+    if (event) await captureAnalytics(analytics, event)
     return {
       content: [{ type: 'text' as const, text: JSON.stringify(value) }],
       structuredContent: value,
@@ -228,6 +262,17 @@ async function runTool(
       content: [{ type: 'text' as const, text: JSON.stringify(details) }],
       structuredContent: { error: details },
     }
+  }
+}
+
+async function captureAnalytics(
+  analytics: McpServerAnalytics | undefined,
+  event: Parameters<McpServerAnalytics['capture']>[0],
+): Promise<void> {
+  try {
+    await analytics?.capture(event)
+  } catch {
+    // Analytics must not affect exercise operations.
   }
 }
 
