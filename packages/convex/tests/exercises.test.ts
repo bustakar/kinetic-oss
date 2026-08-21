@@ -12,30 +12,30 @@ const definition = {
   muscles: [] as const,
 }
 
-describe('custom exercises', () => {
+describe('exercises', () => {
   test('requires authentication for owner operations', async () => {
     const t = convexTest(schema, modules)
     const exercise = await t
       .withIdentity({ subject: 'user_alex' })
-      .mutation(api.customExercises.create, definition)
+      .mutation(api.exercises.create, definition)
 
     await expect(t.query(api.exercises.list, {})).rejects.toMatchObject({
       data: { code: 'UNAUTHENTICATED' },
     })
     await expect(
-      t.query(api.customExercises.get, { exerciseId: exercise._id }),
+      t.query(api.exercises.get, { exerciseId: exercise._id }),
     ).rejects.toMatchObject({ data: { code: 'UNAUTHENTICATED' } })
     await expect(
-      t.mutation(api.customExercises.create, definition),
+      t.mutation(api.exercises.create, definition),
     ).rejects.toMatchObject({ data: { code: 'UNAUTHENTICATED' } })
     await expect(
-      t.mutation(api.customExercises.update, {
+      t.mutation(api.exercises.update, {
         exerciseId: exercise._id,
         ...definition,
       }),
     ).rejects.toMatchObject({ data: { code: 'UNAUTHENTICATED' } })
     await expect(
-      t.mutation(api.customExercises.remove, { exerciseId: exercise._id }),
+      t.mutation(api.exercises.remove, { exerciseId: exercise._id }),
     ).rejects.toMatchObject({ data: { code: 'UNAUTHENTICATED' } })
   })
 
@@ -46,7 +46,7 @@ describe('custom exercises', () => {
     const alex = t.withIdentity({ subject: 'user_alex' })
     const sam = t.withIdentity({ subject: 'user_sam' })
 
-    const exercise = await alex.mutation(api.customExercises.create, definition)
+    const exercise = await alex.mutation(api.exercises.create, definition)
 
     expect(exercise).toMatchObject({
       name: 'Ring Press',
@@ -64,7 +64,7 @@ describe('custom exercises', () => {
     ])
     await expect(sam.query(api.exercises.list, {})).resolves.toEqual([])
     await expect(
-      sam.query(api.customExercises.get, { exerciseId: exercise._id }),
+      sam.query(api.exercises.get, { exerciseId: exercise._id }),
     ).resolves.toBeNull()
 
     vi.useRealTimers()
@@ -99,11 +99,11 @@ describe('custom exercises', () => {
       },
       contentHash: 'a'.repeat(64),
     })
-    const alexExercise = await alex.mutation(api.customExercises.create, {
+    const alexExercise = await alex.mutation(api.exercises.create, {
       ...definition,
       name: 'Arnold Press',
     })
-    await sam.mutation(api.customExercises.create, {
+    await sam.mutation(api.exercises.create, {
       ...definition,
       name: 'Another User Exercise',
     })
@@ -129,7 +129,7 @@ describe('custom exercises', () => {
     const t = convexTest(schema, modules)
     const alex = t.withIdentity({ subject: 'user_alex' })
     const sam = t.withIdentity({ subject: 'user_sam' })
-    const exercise = await alex.mutation(api.customExercises.create, definition)
+    const exercise = await alex.mutation(api.exercises.create, definition)
     const update = {
       exerciseId: exercise._id,
       name: 'Ring Push-Up',
@@ -139,19 +139,19 @@ describe('custom exercises', () => {
     }
 
     await expect(
-      sam.mutation(api.customExercises.update, update),
+      sam.mutation(api.exercises.update, update),
     ).rejects.toMatchObject({ data: { code: 'NOT_FOUND' } })
-    const updated = await alex.mutation(api.customExercises.update, update)
+    const updated = await alex.mutation(api.exercises.update, update)
     expect(updated).toMatchObject({ name: 'Ring Push-Up' })
     expect(updated.notes).toBeUndefined()
     await expect(
-      sam.mutation(api.customExercises.remove, { exerciseId: exercise._id }),
+      sam.mutation(api.exercises.remove, { exerciseId: exercise._id }),
     ).rejects.toMatchObject({ data: { code: 'NOT_FOUND' } })
     await expect(
-      alex.mutation(api.customExercises.remove, { exerciseId: exercise._id }),
+      alex.mutation(api.exercises.remove, { exerciseId: exercise._id }),
     ).resolves.toBe(exercise._id)
     await expect(
-      alex.query(api.customExercises.get, { exerciseId: exercise._id }),
+      alex.query(api.exercises.get, { exerciseId: exercise._id }),
     ).resolves.toBeNull()
   })
 
@@ -160,13 +160,13 @@ describe('custom exercises', () => {
     const alex = t.withIdentity({ subject: 'user_alex' })
 
     await expect(
-      alex.mutation(api.customExercises.create, {
+      alex.mutation(api.exercises.create, {
         ...definition,
         defaultColumns: ['reps', 'time'],
       }),
     ).rejects.toThrow('exactly one of reps or time')
     await expect(
-      alex.mutation(api.customExercises.create, {
+      alex.mutation(api.exercises.create, {
         ...definition,
         muscles: [{ slug: 'missing', role: 'primary' }],
       }),
@@ -183,7 +183,7 @@ describe('custom exercises', () => {
       contentHash: 'a'.repeat(64),
     })
     await expect(
-      alex.mutation(api.customExercises.create, {
+      alex.mutation(api.exercises.create, {
         ...definition,
         muscles: [{ slug: 'pectoralis', role: 'primary' }],
       }),
