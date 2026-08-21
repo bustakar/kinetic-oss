@@ -14,6 +14,8 @@ import type * as catalogModel from "../catalogModel.js";
 import type * as catalogValidators from "../catalogValidators.js";
 import type * as customExercises from "../customExercises.js";
 import type * as domainValidators from "../domainValidators.js";
+import type * as exerciseValidators from "../exerciseValidators.js";
+import type * as exercises from "../exercises.js";
 
 import type {
   ApiFromModules,
@@ -28,6 +30,8 @@ declare const fullApi: ApiFromModules<{
   catalogValidators: typeof catalogValidators;
   customExercises: typeof customExercises;
   domainValidators: typeof domainValidators;
+  exerciseValidators: typeof exerciseValidators;
+  exercises: typeof exercises;
 }>;
 
 /**

@@ -4,39 +4,28 @@ import type { Doc, Id } from './_generated/dataModel'
 import type { MutationCtx, QueryCtx } from './_generated/server'
 import { mutation, query } from './_generated/server'
 import { requireOwnerId } from './auth'
-import { muscleReference, setColumnType } from './catalogValidators'
 import { visibility } from './domainValidators'
+import { exerciseDefinition } from './exerciseValidators'
 
-const exerciseDefinition = v.object({
-  name: v.string(),
+const customExerciseDefinition = v.object({
+  ...exerciseDefinition.fields,
   notes: v.optional(v.string()),
-  defaultColumns: v.array(setColumnType),
-  muscles: v.array(muscleReference),
 })
 
 const customExercise = v.object({
   _id: v.id('exercises'),
   _creationTime: v.number(),
-  ...exerciseDefinition.fields,
+  ...customExerciseDefinition.fields,
   visibility,
   updatedAt: v.number(),
 })
 
 const customExerciseOrNull = v.union(v.null(), customExercise)
-type ExerciseDefinition = Infer<typeof exerciseDefinition>
-type CustomExercise = Infer<typeof customExercise>
+type ExerciseDefinition = Infer<typeof customExerciseDefinition>
+export type CustomExercise = Infer<typeof customExercise>
 type Visibility = Infer<typeof visibility>
 type CreateInput = ExerciseDefinition & { visibility?: Visibility }
 type UpdateInput = ExerciseDefinition & { visibility: Visibility }
-
-export const listMine = query({
-  args: {},
-  returns: v.array(customExercise),
-  handler: async (ctx) => {
-    const ownerId = await requireOwnerId(ctx)
-    return await listForOwner(ctx, ownerId)
-  },
-})
 
 export const get = query({
   args: { exerciseId: v.id('exercises') },
@@ -49,7 +38,7 @@ export const get = query({
 
 export const create = mutation({
   args: {
-    ...exerciseDefinition.fields,
+    ...customExerciseDefinition.fields,
     visibility: v.optional(visibility),
   },
   returns: customExercise,
@@ -62,7 +51,7 @@ export const create = mutation({
 export const update = mutation({
   args: {
     exerciseId: v.id('exercises'),
-    ...exerciseDefinition.fields,
+    ...customExerciseDefinition.fields,
     visibility,
   },
   returns: customExercise,

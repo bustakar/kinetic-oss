@@ -19,7 +19,7 @@ describe('custom exercises', () => {
       .withIdentity({ subject: 'user_alex' })
       .mutation(api.customExercises.create, definition)
 
-    await expect(t.query(api.customExercises.listMine, {})).rejects.toMatchObject({
+    await expect(t.query(api.exercises.list, {})).rejects.toMatchObject({
       data: { code: 'UNAUTHENTICATED' },
     })
     await expect(
@@ -52,15 +52,79 @@ describe('custom exercises', () => {
       visibility: 'private',
       updatedAt: Date.now(),
     })
-    await expect(alex.query(api.customExercises.listMine, {})).resolves.toEqual([
-      exercise,
+    await expect(alex.query(api.exercises.list, {})).resolves.toEqual([
+      {
+        source: { kind: 'custom', exerciseId: exercise._id },
+        name: 'Ring Press',
+        notes: 'A useful variation.',
+        defaultColumns: ['reps', 'weight'],
+        muscles: [],
+        visibility: 'private',
+      },
     ])
-    await expect(sam.query(api.customExercises.listMine, {})).resolves.toEqual([])
+    await expect(sam.query(api.exercises.list, {})).resolves.toEqual([])
     await expect(
       t.query(api.customExercises.get, { exerciseId: exercise._id }),
     ).resolves.toBeNull()
 
     vi.useRealTimers()
+  })
+
+  test('combines the active catalog with only the owner custom exercises', async () => {
+    const t = convexTest(schema, modules)
+    const alex = t.withIdentity({ subject: 'user_alex' })
+    const sam = t.withIdentity({ subject: 'user_sam' })
+
+    await t.mutation(internal.catalog.applySnapshot, {
+      snapshot: {
+        schemaVersion: 1,
+        revision: 1,
+        muscleGroups: [{ slug: 'legs', name: 'Legs' }],
+        muscles: [{ slug: 'quads', name: 'Quadriceps', groupSlug: 'legs' }],
+        exercises: [
+          {
+            slug: 'back-squat',
+            name: 'Back Squat',
+            defaultColumns: ['reps', 'weight'],
+            muscles: [{ slug: 'quads', role: 'primary' }],
+          },
+          {
+            slug: 'retired-squat',
+            name: 'Retired Squat',
+            defaultColumns: ['reps'],
+            muscles: [{ slug: 'quads', role: 'primary' }],
+            deprecated: true,
+          },
+        ],
+      },
+      contentHash: 'a'.repeat(64),
+    })
+    const alexExercise = await alex.mutation(api.customExercises.create, {
+      ...definition,
+      name: 'Arnold Press',
+    })
+    await sam.mutation(api.customExercises.create, {
+      ...definition,
+      name: 'Another User Exercise',
+      visibility: 'public',
+    })
+
+    await expect(alex.query(api.exercises.list, {})).resolves.toEqual([
+      {
+        source: { kind: 'custom', exerciseId: alexExercise._id },
+        name: 'Arnold Press',
+        notes: 'A useful variation.',
+        defaultColumns: ['reps', 'weight'],
+        muscles: [],
+        visibility: 'private',
+      },
+      {
+        source: { kind: 'catalog', slug: 'back-squat' },
+        name: 'Back Squat',
+        defaultColumns: ['reps', 'weight'],
+        muscles: [{ slug: 'quads', role: 'primary' }],
+      },
+    ])
   })
 
   test('exposes public exercises without exposing private owner data', async () => {

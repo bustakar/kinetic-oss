@@ -1,7 +1,6 @@
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 
-import { muscleReference, setColumnType } from './catalogValidators'
 import {
   programSlot,
   routineExercise,
@@ -9,6 +8,7 @@ import {
   workoutExercise,
   workoutSource,
 } from './domainValidators'
+import { exerciseDefinition } from './exerciseValidators'
 
 const owned = {
   ownerId: v.string(),
@@ -47,9 +47,7 @@ export default defineSchema({
 
   catalogExercises: defineTable({
     slug: v.string(),
-    name: v.string(),
-    defaultColumns: v.array(setColumnType),
-    muscles: v.array(muscleReference),
+    ...exerciseDefinition.fields,
     family: v.optional(v.string()),
     deprecated: v.optional(v.boolean()),
     catalogRevision: v.number(),
@@ -60,10 +58,8 @@ export default defineSchema({
 
   exercises: defineTable({
     ...owned,
-    name: v.string(),
+    ...exerciseDefinition.fields,
     notes: v.optional(v.string()),
-    defaultColumns: v.array(setColumnType),
-    muscles: v.array(muscleReference),
   })
     .index('by_owner', ['ownerId'])
     .index('by_owner_visibility', ['ownerId', 'visibility'])

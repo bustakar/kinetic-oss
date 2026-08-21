@@ -1,17 +1,6 @@
 import { v } from 'convex/values'
 
-export const setColumnType = v.union(
-  v.literal('reps'),
-  v.literal('time'),
-  v.literal('weight'),
-)
-
-export const muscleRole = v.union(v.literal('primary'), v.literal('secondary'))
-
-export const muscleReference = v.object({
-  slug: v.string(),
-  role: muscleRole,
-})
+import { exerciseDefinition } from './exerciseValidators'
 
 export const catalogMuscleGroup = v.object({
   slug: v.string(),
@@ -28,9 +17,7 @@ export const catalogMuscle = v.object({
 
 export const catalogExercise = v.object({
   slug: v.string(),
-  name: v.string(),
-  defaultColumns: v.array(setColumnType),
-  muscles: v.array(muscleReference),
+  ...exerciseDefinition.fields,
   family: v.optional(v.string()),
   deprecated: v.optional(v.boolean()),
 })

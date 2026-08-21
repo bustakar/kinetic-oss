@@ -1,6 +1,6 @@
 import { v } from 'convex/values'
 
-import { muscleReference, setColumnType } from './catalogValidators'
+import { muscleReference, setColumnType } from './exerciseValidators'
 
 export const visibility = v.union(v.literal('private'), v.literal('public'))
 
