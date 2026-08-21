@@ -18,12 +18,14 @@ concurrency:
 env:
   NITRO_PRESET: vercel
   VERCEL_CLI_VERSION: 58.7.1
-  VERCEL_ORG_ID: team_esSULRmJBnOfyHWO2i1AEen4
-  VERCEL_PROJECT_ID: prj_qAKuGA2bydHuJRoF58coOa7IrbR5
+  VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
 
 jobs:
   deploy:
+    if: github.repository == 'bustakar/kinetic-oss'
     name: Deploy Vercel production
+    environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
