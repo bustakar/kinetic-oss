@@ -7,13 +7,13 @@
   --ink: #172033;
   --muted: #657083;
   --accent: #e07759;
-  --accent-hover: #c96348;
+  --accent-hover: #ee8d70;
   --line: #dce1e9;
   --paper: #f5f7fa;
   --surface: #ffffff;
-  --focus: #9bb3f5;
+  --focus: #315fdf;
   --line-hover: #bcc4d1;
-  --catalog-gradient: linear-gradient(110deg, #e07759 0%, #8d4850 48%, #2a1f3d 100%);
+  --catalog-gradient: linear-gradient(110deg, #7f3f30 0%, #713b46 48%, #2a1f3d 100%);
   --client-card: #ffffff;
   --client-text: var(--ink);
   --client-muted: var(--muted);
@@ -95,7 +95,7 @@ h1 {
   border-radius: 10px;
   padding: 13px 17px;
   background: var(--accent);
-  color: white;
+  color: #24171b;
   font-size: 15px;
   font-weight: 700;
   text-decoration: none;
