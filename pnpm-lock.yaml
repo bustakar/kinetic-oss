@@ -8,6 +8,34 @@ importers:
 
   .: {}
 
+  apps/marketing:
+    dependencies:
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.5(vite@8.2.1(@types/node@26.2.0)(esbuild@0.27.0)(jiti@2.7.0))
+      react:
+        specifier: ^19.2.0
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.8(react@19.2.8)
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
+      vite:
+        specifier: 8.2.1
+        version: 8.2.1(@types/node@26.2.0)(esbuild@0.27.0)(jiti@2.7.0)
+    devDependencies:
+      '@types/node':
+        specifier: ^26.2.0
+        version: 26.2.0
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.2.0
+        version: 19.2.4(@types/react@19.2.18)
+
   apps/web:
     dependencies:
       '@kinetic/analytics':
