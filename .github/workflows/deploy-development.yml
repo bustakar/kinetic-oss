@@ -34,7 +34,6 @@ jobs:
             projectId: ${{ vars.VERCEL_MARKETING_PROJECT_ID }}
             nitroPreset: ""
     env:
-      NITRO_PRESET: ${{ matrix.nitroPreset }}
       VERCEL_PROJECT_ID: ${{ matrix.projectId }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
@@ -51,6 +50,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - name: Deploy dev
+        env:
+          NITRO_PRESET: ${{ matrix.nitroPreset }}
         run: |
           pnpm dlx "vercel@${VERCEL_CLI_VERSION}" pull --yes --environment=dev --token="$VERCEL_TOKEN"
           pnpm dlx "vercel@${VERCEL_CLI_VERSION}" build --target=dev --token="$VERCEL_TOKEN"
