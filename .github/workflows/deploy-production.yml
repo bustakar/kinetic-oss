@@ -18,16 +18,27 @@ concurrency:
 env:
   VERCEL_CLI_VERSION: 58.7.1
   VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
 
 jobs:
   deploy:
     if: github.repository == 'bustakar/kinetic-oss'
-    name: Deploy Vercel production
+    name: Deploy ${{ matrix.project }} production
     environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: app
+            projectId: ${{ vars.VERCEL_PROJECT_ID }}
+            nitroPreset: vercel
+          - project: marketing
+            projectId: ${{ vars.VERCEL_MARKETING_PROJECT_ID }}
+            nitroPreset: ""
     env:
+      NITRO_PRESET: ${{ matrix.nitroPreset }}
+      VERCEL_PROJECT_ID: ${{ matrix.projectId }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -48,8 +59,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - name: Deploy production
-        env:
-          NITRO_PRESET: vercel
         run: |
           pnpm dlx "vercel@${VERCEL_CLI_VERSION}" pull --yes --environment=production --token="$VERCEL_TOKEN"
           pnpm dlx "vercel@${VERCEL_CLI_VERSION}" build --prod --token="$VERCEL_TOKEN"
